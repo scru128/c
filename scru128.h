@@ -21,17 +21,27 @@
 
 #include <stdint.h>
 
-/** Represents a SCRU128 ID as a 128-bit big-endian byte array. */
-typedef uint8_t Scru128Id[16];
+/**
+ * Represents a SCRU128 ID and provides various converters and comparison
+ * operators.
+ */
+typedef struct Scru128Id {
+  /**
+   * Internal 128-bit byte array representation.
+   *
+   * @private
+   */
+  uint8_t _bytes[16];
+} Scru128Id;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * Creates a SCRU128 ID from field values.
+ * Creates a SCRU128 ID object from field values.
  *
- * @param out Location where the created value is stored.
+ * @param out Location where the new object is stored.
  * @param timestamp 44-bit millisecond timestamp field value.
  * @param counter 28-bit per-timestamp monotonic counter field value.
  * @param per_sec_random 24-bit per-second randomness field value.
@@ -39,40 +49,61 @@ extern "C" {
  * @return Zero on success or a non-zero integer if any argument is out of the
  * value range of the field.
  */
-int scru128_from_fields(Scru128Id out, uint64_t timestamp, uint32_t counter,
+int scru128_from_fields(Scru128Id *out, uint64_t timestamp, uint32_t counter,
                         uint32_t per_sec_random, uint32_t per_gen_random);
 
 /**
- * Creates a SCRU128 ID from a 26-digit string representation.
+ * Creates a SCRU128 ID object from a byte array that represents a 128-bit
+ * unsigned integer.
  *
- * @param out Location where the created value is stored.
+ * @param out Location where the new object is stored.
+ * @param bytes 16-byte byte array that represents a 128-bit unsigned integer in
+ * the big-endian (network) byte order.
+ * @return Zero on success or a non-zero integer on failure.
+ */
+int scru128_from_bytes(Scru128Id *out, const uint8_t *bytes);
+
+/**
+ * Creates a SCRU128 ID object from a 26-digit string representation.
+ *
+ * @param out Location where the new object is stored.
  * @param text Null-terminated ASCII character array containing the 26-digit
  * string representation.
  * @return Zero on success or a non-zero integer if `text` is not a valid string
  * representation.
  */
-int scru128_from_str(Scru128Id out, const char *text);
+int scru128_from_str(Scru128Id *out, const char *text);
 
 /**
  * Returns the 44-bit millisecond timestamp field value of a SCRU128 ID.
  */
-uint64_t scru128_timestamp(const Scru128Id id);
+uint64_t scru128_timestamp(const Scru128Id *id);
 
 /**
  * Returns the 28-bit per-timestamp monotonic counter field value of a SCRU128
  * ID.
  */
-uint32_t scru128_counter(const Scru128Id id);
+uint32_t scru128_counter(const Scru128Id *id);
 
 /**
  * Returns the 24-bit per-second randomness field value of a SCRU128 ID.
  */
-uint32_t scru128_per_sec_random(const Scru128Id id);
+uint32_t scru128_per_sec_random(const Scru128Id *id);
 
 /**
  * Returns the 32-bit per-generation randomness field value of a SCRU128 ID.
  */
-uint32_t scru128_per_gen_random(const Scru128Id id);
+uint32_t scru128_per_gen_random(const Scru128Id *id);
+
+/**
+ * Returns a byte array containing the 128-bit unsigned integer representation
+ * of a SCRU128 ID.
+ *
+ * @param out Unsigned byte array where the returned array is stored. The
+ * returned array is a 16-byte byte array containing the 128-bit unsigned
+ * integer representation in the big-endian (network) byte order.
+ */
+void scru128_to_bytes(const Scru128Id *id, uint8_t *out);
 
 /**
  * Returns the 26-digit canonical string representation of a SCRU128 ID.
@@ -81,22 +112,16 @@ uint32_t scru128_per_gen_random(const Scru128Id id);
  * string is a 27-byte (including the terminating null byte) ASCII string
  * consisting of 26 `[0-9A-V]` characters.
  */
-void scru128_to_str(const Scru128Id id, char *out);
-
-/**
- * Copies the SCRU128 ID pointed to by `src` to the location pointed to by
- * `dst`.
- */
-void scru128_copy(Scru128Id dst, const Scru128Id src);
+void scru128_to_str(const Scru128Id *id, char *out);
 
 /**
  * Returns a negative integer, zero, or positive integer if `lhs` is less than,
  * equal to, or greater than `rhs`, respectively.
  */
-int scru128_compare(const Scru128Id lhs, const Scru128Id rhs);
+int scru128_compare(const Scru128Id *lhs, const Scru128Id *rhs);
 
 #ifdef __cplusplus
-} /* extern "C" */
+} /* extern "C" { */
 #endif
 
-#endif /* SCRU128_H_AVJRBJQI */
+#endif /* #ifndef SCRU128_H_AVJRBJQI */

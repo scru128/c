@@ -1,5 +1,5 @@
 /*
- * scru128id.c - https://github.com/scru128/c
+ * scru128.c - https://github.com/scru128/c
  *
  * Copyright 2022 The scru128/c Developers.
  *
@@ -65,45 +65,53 @@ static uint64_t bytes_to_uint64(const uint8_t *bytes, int nbytes) {
   return buffer;
 }
 
-int scru128_from_fields(Scru128Id out, uint64_t timestamp, uint32_t counter,
+int scru128_from_fields(Scru128Id *out, uint64_t timestamp, uint32_t counter,
                         uint32_t per_sec_random, uint32_t per_gen_random) {
   if (timestamp > MAX_TIMESTAMP || counter > MAX_COUNTER ||
       per_sec_random > MAX_PER_SEC_RANDOM) {
     return -1;
   }
 
-  out[0] = (uint8_t)(timestamp >> 36);
-  out[1] = (uint8_t)(timestamp >> 28);
-  out[2] = (uint8_t)(timestamp >> 20);
-  out[3] = (uint8_t)(timestamp >> 12);
-  out[4] = (uint8_t)(timestamp >> 4);
-  out[5] = (uint8_t)(timestamp << 4) | (uint8_t)(counter >> 24);
-  out[6] = (uint8_t)(counter >> 16);
-  out[7] = (uint8_t)(counter >> 8);
-  out[8] = (uint8_t)counter;
-  out[9] = (uint8_t)(per_sec_random >> 16);
-  out[10] = (uint8_t)(per_sec_random >> 8);
-  out[11] = (uint8_t)per_sec_random;
-  out[12] = (uint8_t)(per_gen_random >> 24);
-  out[13] = (uint8_t)(per_gen_random >> 16);
-  out[14] = (uint8_t)(per_gen_random >> 8);
-  out[15] = (uint8_t)per_gen_random;
+  out->_bytes[0] = (uint8_t)(timestamp >> 36);
+  out->_bytes[1] = (uint8_t)(timestamp >> 28);
+  out->_bytes[2] = (uint8_t)(timestamp >> 20);
+  out->_bytes[3] = (uint8_t)(timestamp >> 12);
+  out->_bytes[4] = (uint8_t)(timestamp >> 4);
+  out->_bytes[5] = (uint8_t)(timestamp << 4) | (uint8_t)(counter >> 24);
+  out->_bytes[6] = (uint8_t)(counter >> 16);
+  out->_bytes[7] = (uint8_t)(counter >> 8);
+  out->_bytes[8] = (uint8_t)counter;
+  out->_bytes[9] = (uint8_t)(per_sec_random >> 16);
+  out->_bytes[10] = (uint8_t)(per_sec_random >> 8);
+  out->_bytes[11] = (uint8_t)per_sec_random;
+  out->_bytes[12] = (uint8_t)(per_gen_random >> 24);
+  out->_bytes[13] = (uint8_t)(per_gen_random >> 16);
+  out->_bytes[14] = (uint8_t)(per_gen_random >> 8);
+  out->_bytes[15] = (uint8_t)per_gen_random;
   return 0;
 }
 
-int scru128_from_str(Scru128Id out, const char *text) {
-  const uint8_t *bytes = (const uint8_t *)text;
-  if (DECODE_MAP[bytes[0]] > 7 || DECODE_MAP[bytes[1]] == 0xff) {
+int scru128_from_bytes(Scru128Id *out, const uint8_t *bytes) {
+  for (int i = 0; i < 16; i++) {
+    out->_bytes[i] = bytes[i];
+  }
+  return 0;
+}
+
+int scru128_from_str(Scru128Id *out, const char *text) {
+  const uint8_t *uchars = (const uint8_t *)text;
+  if (DECODE_MAP[uchars[0]] > 7 || DECODE_MAP[uchars[1]] == 0xff) {
     return -1;
   }
 
-  out[0] = (uint8_t)(DECODE_MAP[bytes[0]] << 5) | DECODE_MAP[bytes[1]];
+  out->_bytes[0] =
+      (uint8_t)(DECODE_MAP[uchars[0]] << 5) | DECODE_MAP[uchars[1]];
 
   // process three 40-bit (5-byte / 8-digit) groups
   for (int i = 0; i < 3; i++) {
     uint64_t buffer = 0;
     for (int j = 0; j < 8; j++) {
-      const uint8_t n = DECODE_MAP[bytes[2 + i * 8 + j]];
+      const uint8_t n = DECODE_MAP[uchars[2 + i * 8 + j]];
       if (n == 0xff) {
         return -1;
       }
@@ -111,36 +119,42 @@ int scru128_from_str(Scru128Id out, const char *text) {
       buffer |= n;
     }
     for (int j = 0; j < 5; j++) {
-      out[5 + i * 5 - j] = (uint8_t)buffer;
+      out->_bytes[5 + i * 5 - j] = (uint8_t)buffer;
       buffer >>= 8;
     }
   }
-  return bytes[26] == 0 ? 0 : -1;
+  return uchars[26] == 0 ? 0 : -1;
 }
 
-uint64_t scru128_timestamp(const Scru128Id id) {
-  return bytes_to_uint64(&id[0], 6) >> 4;
+uint64_t scru128_timestamp(const Scru128Id *id) {
+  return bytes_to_uint64(&id->_bytes[0], 6) >> 4;
 }
 
-uint32_t scru128_counter(const Scru128Id id) {
-  return (uint32_t)bytes_to_uint64(&id[5], 4) & MAX_COUNTER;
+uint32_t scru128_counter(const Scru128Id *id) {
+  return (uint32_t)bytes_to_uint64(&id->_bytes[5], 4) & MAX_COUNTER;
 }
 
-uint32_t scru128_per_sec_random(const Scru128Id id) {
-  return (uint32_t)bytes_to_uint64(&id[9], 3);
+uint32_t scru128_per_sec_random(const Scru128Id *id) {
+  return (uint32_t)bytes_to_uint64(&id->_bytes[9], 3);
 }
 
-uint32_t scru128_per_gen_random(const Scru128Id id) {
-  return (uint32_t)bytes_to_uint64(&id[12], 4);
+uint32_t scru128_per_gen_random(const Scru128Id *id) {
+  return (uint32_t)bytes_to_uint64(&id->_bytes[12], 4);
 }
 
-void scru128_to_str(const Scru128Id id, char *out) {
-  out[0] = DIGITS[id[0] >> 5];
-  out[1] = DIGITS[id[0] & 31];
+void scru128_to_bytes(const Scru128Id *id, uint8_t *out) {
+  for (int i = 0; i < 16; i++) {
+    out[i] = id->_bytes[i];
+  }
+}
+
+void scru128_to_str(const Scru128Id *id, char *out) {
+  out[0] = DIGITS[id->_bytes[0] >> 5];
+  out[1] = DIGITS[id->_bytes[0] & 31];
 
   // process three 40-bit (5-byte / 8-digit) groups
   for (int i = 0; i < 3; i++) {
-    uint64_t buffer = bytes_to_uint64(&id[1 + i * 5], 5);
+    uint64_t buffer = bytes_to_uint64(&id->_bytes[1 + i * 5], 5);
     for (int j = 0; j < 8; j++) {
       out[9 + i * 8 - j] = DIGITS[buffer & 31];
       buffer >>= 5;
@@ -150,16 +164,10 @@ void scru128_to_str(const Scru128Id id, char *out) {
   out[26] = 0;
 }
 
-void scru128_copy(Scru128Id dst, const Scru128Id src) {
+int scru128_compare(const Scru128Id *lhs, const Scru128Id *rhs) {
   for (int i = 0; i < 16; i++) {
-    dst[i] = src[i];
-  }
-}
-
-int scru128_compare(const Scru128Id lhs, const Scru128Id rhs) {
-  for (int i = 0; i < 16; i++) {
-    if (lhs[i] != rhs[i]) {
-      return lhs[i] < rhs[i] ? -1 : 1;
+    if (lhs->_bytes[i] != rhs->_bytes[i]) {
+      return lhs->_bytes[i] < rhs->_bytes[i] ? -1 : 1;
     }
   }
   return 0;

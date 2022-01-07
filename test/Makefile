@@ -1,18 +1,19 @@
-.PHONY: test clean test_as_c test_as_cpp
+CFLAGS = -std=c99 -Wall -Wextra -pedantic-errors -I..
+CXXFLAGS = -std=c++98 -Wall -Wextra -pedantic-errors -I..
 
-test: test_as_c test_as_cpp
+.PHONY: test clean test_id
+
+test: test_id
 
 clean:
 	$(RM) *.out
 
-test_as_c: scru128id_test_as_c.out
+test_id: scru128id_test_as_c.out scru128id_test_as_cpp.out
 	./scru128id_test_as_c.out
-
-test_as_cpp: scru128id_test_as_cpp.out
 	./scru128id_test_as_cpp.out
 
-%_as_c.out: %.c ../scru128.h ../scru128id.c
-	$(CC) -std=c99 -Wall -Wextra -pedantic-errors -I.. -o$@ $< ../scru128id.c
+scru128id_test_as_c.out: ../scru128.h ../scru128.c scru128id_test.c
+	$(CC) $(CFLAGS) -o$@ ../scru128.c scru128id_test.c
 
-%_as_cpp.out: %.c ../scru128.h ../scru128id.c
-	$(CXX) -std=c++98 -Wall -Wextra -pedantic-errors -I.. -o$@ $< ../scru128id.c
+scru128id_test_as_cpp.out: ../scru128.h ../scru128.c scru128id_test.c
+	$(CXX) $(CXXFLAGS) -o$@ ../scru128.c scru128id_test.c
