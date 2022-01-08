@@ -172,3 +172,122 @@ int scru128_compare(const Scru128Id *lhs, const Scru128Id *rhs) {
   }
   return 0;
 }
+
+/**
+ * Returns the current unix time in milliseconds.
+ *
+ * @param out Location where the returned value is stored.
+ * @return Zero on success or a non-zero integer on failure.
+ * @attention A concrete implementation has to be provided to build the library
+ * with the compiler flag `-DSCRU128_WITH_GENERATOR`.
+ */
+int scru128_get_msec_unixts(uint64_t *out);
+
+/**
+ * Returns a 32-bit random unsigned integer.
+ *
+ * @param out Location where the returned value is stored.
+ * @return Zero on success or a non-zero integer on failure.
+ * @attention A concrete implementation has to be provided to build the library
+ * with the compiler flag `-DSCRU128_WITH_GENERATOR`. Such an implementation
+ * should be thread-safe and cryptographically strong.
+ */
+int scru128_get_random_uint32(uint32_t *out);
+
+/**
+ * Logs a message at WARNING level.
+ *
+ * @attention A concrete implementation has to be provided to build the library
+ * with the compiler flag `-DSCRU128_WITH_LOGGING`.
+ */
+void scru128_log_warn(const char *message);
+
+/**
+ * Logs a message at INFO level.
+ *
+ * @attention A concrete implementation has to be provided to build the library
+ * with the compiler flag `-DSCRU128_WITH_LOGGING`.
+ */
+void scru128_log_info(const char *message);
+
+#ifdef SCRU128_WITH_GENERATOR
+
+/* Unix time in milliseconds at 2020-01-01 00:00:00+00:00. */
+static const uint64_t TIMESTAMP_BIAS = 1577836800000;
+
+void scru128_initialize_generator(Scru128Generator *g) {
+  g->_ts_last_gen = 0;
+  g->_counter = 0;
+  g->_ts_last_sec = 0;
+  g->_per_sec_random = 0;
+  g->_n_clock_check_max = 1000000;
+}
+
+int scru128_generate(Scru128Generator *g, Scru128Id *out) {
+  uint64_t ts_now;
+  uint32_t next_rand;
+  int err;
+
+  // update timestamp and counter
+  if ((err = scru128_get_msec_unixts(&ts_now))) {
+    return err;
+  }
+  if (ts_now > g->_ts_last_gen) {
+    g->_ts_last_gen = ts_now;
+    if ((err = scru128_get_random_uint32(&next_rand))) {
+      return err;
+    }
+    g->_counter = next_rand & MAX_COUNTER;
+  } else {
+    if (++g->_counter > MAX_COUNTER) {
+#ifdef SCRU128_WITH_LOGGING
+      scru128_log_info(
+          "counter limit reached; will wait until clock goes forward");
+#endif
+      int n_clock_check = 0;
+      while (ts_now <= g->_ts_last_gen) {
+        if ((err = scru128_get_msec_unixts(&ts_now))) {
+          return err;
+        }
+        if (++n_clock_check > g->_n_clock_check_max) {
+#ifdef SCRU128_WITH_LOGGING
+          scru128_log_warn("reset state as clock did not go forward");
+#endif
+          g->_ts_last_sec = 0;
+          break;
+        }
+      }
+      g->_ts_last_gen = ts_now;
+      if ((err = scru128_get_random_uint32(&next_rand))) {
+        return err;
+      }
+      g->_counter = next_rand & MAX_COUNTER;
+    }
+  }
+
+  // update per_sec_random
+  if (g->_ts_last_gen - g->_ts_last_sec > 1000) {
+    g->_ts_last_sec = g->_ts_last_gen;
+    if ((err = scru128_get_random_uint32(&next_rand))) {
+      return err;
+    }
+    g->_per_sec_random = next_rand & MAX_PER_SEC_RANDOM;
+  }
+
+  if ((err = scru128_get_random_uint32(&next_rand))) {
+    return err;
+  }
+  return scru128_from_fields(out, g->_ts_last_gen - TIMESTAMP_BIAS, g->_counter,
+                             g->_per_sec_random, next_rand);
+}
+
+int scru128_generate_string(Scru128Generator *g, char *out) {
+  Scru128Id id;
+  int result = scru128_generate(g, &id);
+  if (result == 0) {
+    scru128_to_str(&id, out);
+  }
+  return result;
+}
+
+#endif /* #ifdef SCRU128_WITH_GENERATOR */

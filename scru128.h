@@ -34,6 +34,50 @@ typedef struct Scru128Id {
   uint8_t _bytes[16];
 } Scru128Id;
 
+/**
+ * Represents a SCRU128 ID generator that encapsulates the monotonic counter and
+ * other internal states.
+ *
+ * A new variable of this type must be initialized before use using
+ * `scru128_initialize_generator()`.
+ */
+typedef struct Scru128Generator {
+  /**
+   * Timestamp at last generation.
+   *
+   * @private
+   */
+  uint64_t _ts_last_gen;
+
+  /**
+   * Counter at last generation.
+   *
+   * @private
+   */
+  uint32_t _counter;
+
+  /**
+   * Timestamp at last renewal of per_sec_random.
+   *
+   * @private
+   */
+  uint64_t _ts_last_sec;
+
+  /**
+   * Per-second random value at last generation.
+   *
+   * @private
+   */
+  uint32_t _per_sec_random;
+
+  /**
+   * Maximum number of checking the system clock until it goes forward.
+   *
+   * @private
+   */
+  int _n_clock_check_max;
+} Scru128Generator;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -119,6 +163,45 @@ void scru128_to_str(const Scru128Id *id, char *out);
  * equal to, or greater than `rhs`, respectively.
  */
 int scru128_compare(const Scru128Id *lhs, const Scru128Id *rhs);
+
+/**
+ * Initializes a generator.
+ *
+ * @note This function is available when the library is built with the compiler
+ * flag `-DSCRU128_WITH_GENERATOR` and some platform-specific configurations.
+ */
+void scru128_initialize_generator(Scru128Generator *g);
+
+/**
+ * Generates a new SCRU128 ID using the generator `g`.
+ *
+ * @param out Location where the generated ID is stored.
+ * @return Zero on success or a non-zero integer if the system clock or random
+ * number generator returns an error.
+ * @attention This function is NOT thread-safe. The generator `g` should be
+ * protected from concurrent accesses using a mutex or other synchronization
+ * mechanism.
+ * @note This function is available when the library is built with the compiler
+ * flag `-DSCRU128_WITH_GENERATOR` and some platform-specific configurations.
+ */
+int scru128_generate(Scru128Generator *g, Scru128Id *out);
+
+/**
+ * Generates a new SCRU128 ID encoded in the 26-digit canonical string
+ * representation using the generator `g`.
+ *
+ * @param out Character array where the returned string is stored. The returned
+ * string is a 27-byte (including the terminating null byte) ASCII string
+ * consisting of 26 `[0-9A-V]` characters.
+ * @return Zero on success or a non-zero integer if the system clock or random
+ * number generator returns an error.
+ * @attention This function is NOT thread-safe. The generator `g` should be
+ * protected from concurrent accesses using a mutex or other synchronization
+ * mechanism.
+ * @note This function is available when the library is built with the compiler
+ * flag `-DSCRU128_WITH_GENERATOR` and some platform-specific configurations.
+ */
+int scru128_generate_string(Scru128Generator *g, char *out);
 
 #ifdef __cplusplus
 } /* extern "C" { */
