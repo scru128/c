@@ -38,8 +38,8 @@ typedef struct Scru128Id {
  * Represents a SCRU128 ID generator that encapsulates the monotonic counter and
  * other internal states.
  *
- * A new variable of this type must be initialized before use using
- * `scru128_initialize_generator()`.
+ * A new generator must be initialized by `scru128_initialize_generator()`
+ * before use.
  */
 typedef struct Scru128Generator {
   /**
@@ -165,10 +165,10 @@ void scru128_to_str(const Scru128Id *id, char *out);
 int scru128_compare(const Scru128Id *lhs, const Scru128Id *rhs);
 
 /**
- * Initializes a generator.
+ * Initializes a generator struct `g`.
  *
- * @note This function is available when the library is built with the compiler
- * flag `-DSCRU128_WITH_GENERATOR` and some platform-specific configurations.
+ * @note This function is not available when the library is built with the
+ * compiler flag `-DSCRU128_NO_GENERATOR`.
  */
 void scru128_initialize_generator(Scru128Generator *g);
 
@@ -180,9 +180,9 @@ void scru128_initialize_generator(Scru128Generator *g);
  * number generator returns an error.
  * @attention This function is NOT thread-safe. The generator `g` should be
  * protected from concurrent accesses using a mutex or other synchronization
- * mechanism.
- * @note This function is available when the library is built with the compiler
- * flag `-DSCRU128_WITH_GENERATOR` and some platform-specific configurations.
+ * mechanism to avoid race conditions.
+ * @note This function is not available when the library is built with the
+ * compiler flag `-DSCRU128_NO_GENERATOR`.
  */
 int scru128_generate(Scru128Generator *g, Scru128Id *out);
 
@@ -197,9 +197,9 @@ int scru128_generate(Scru128Generator *g, Scru128Id *out);
  * number generator returns an error.
  * @attention This function is NOT thread-safe. The generator `g` should be
  * protected from concurrent accesses using a mutex or other synchronization
- * mechanism.
- * @note This function is available when the library is built with the compiler
- * flag `-DSCRU128_WITH_GENERATOR` and some platform-specific configurations.
+ * mechanism to avoid race conditions.
+ * @note This function is not available when the library is built with the
+ * compiler flag `-DSCRU128_NO_GENERATOR`.
  */
 int scru128_generate_string(Scru128Generator *g, char *out);
 

@@ -156,17 +156,22 @@ void test_symmetric_converters() {
   for (int i = 0; i < n_cases; i++) {
     Scru128Id *e = &cases[i];
     Scru128Id id_buffer;
+    int err;
 
     uint8_t bytes_buffer[16];
     scru128_to_bytes(e, bytes_buffer);
-    scru128_from_bytes(&id_buffer, bytes_buffer);
+    err = scru128_from_bytes(&id_buffer, bytes_buffer);
+    assert(err == 0);
     assert(scru128_compare(&id_buffer, e) == 0);
     char text_buffer[TEXT_BUFFER_SIZE];
     scru128_to_str(e, text_buffer);
-    scru128_from_str(&id_buffer, text_buffer);
+    err = scru128_from_str(&id_buffer, text_buffer);
+    assert(err == 0);
     assert(scru128_compare(&id_buffer, e) == 0);
-    scru128_from_fields(&id_buffer, scru128_timestamp(e), scru128_counter(e),
-                        scru128_per_sec_random(e), scru128_per_gen_random(e));
+    err = scru128_from_fields(&id_buffer, scru128_timestamp(e),
+                              scru128_counter(e), scru128_per_sec_random(e),
+                              scru128_per_gen_random(e));
+    assert(err == 0);
     assert(scru128_compare(&id_buffer, e) == 0);
   }
 }

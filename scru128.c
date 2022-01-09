@@ -179,7 +179,7 @@ int scru128_compare(const Scru128Id *lhs, const Scru128Id *rhs) {
  * @param out Location where the returned value is stored.
  * @return Zero on success or a non-zero integer on failure.
  * @attention A concrete implementation has to be provided to build the library
- * with the compiler flag `-DSCRU128_WITH_GENERATOR`.
+ * unless the compiler flag `-DSCRU128_NO_GENERATOR` is specified.
  */
 int scru128_get_msec_unixts(uint64_t *out);
 
@@ -189,8 +189,8 @@ int scru128_get_msec_unixts(uint64_t *out);
  * @param out Location where the returned value is stored.
  * @return Zero on success or a non-zero integer on failure.
  * @attention A concrete implementation has to be provided to build the library
- * with the compiler flag `-DSCRU128_WITH_GENERATOR`. Such an implementation
- * should be thread-safe and cryptographically strong.
+ * unless the compiler flag `-DSCRU128_NO_GENERATOR` is specified. Such an
+ * implementation should be thread-safe and cryptographically strong.
  */
 int scru128_get_random_uint32(uint32_t *out);
 
@@ -210,7 +210,7 @@ void scru128_log_warn(const char *message);
  */
 void scru128_log_info(const char *message);
 
-#ifdef SCRU128_WITH_GENERATOR
+#ifndef SCRU128_NO_GENERATOR
 
 /* Unix time in milliseconds at 2020-01-01 00:00:00+00:00. */
 static const uint64_t TIMESTAMP_BIAS = 1577836800000;
@@ -290,4 +290,4 @@ int scru128_generate_string(Scru128Generator *g, char *out) {
   return result;
 }
 
-#endif /* #ifdef SCRU128_WITH_GENERATOR */
+#endif /* #ifndef SCRU128_NO_GENERATOR */

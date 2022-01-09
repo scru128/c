@@ -1,5 +1,3 @@
-#ifdef SCRU128_WITH_GENERATOR
-
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
@@ -15,8 +13,6 @@ int scru128_get_random_uint32(uint32_t *out) {
   *out = arc4random();
   return 0;
 }
-
-#endif /* #ifdef SCRU128_WITH_GENERATOR */
 
 #ifdef SCRU128_WITH_LOGGING
 
