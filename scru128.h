@@ -42,40 +42,21 @@ typedef struct Scru128Id {
  * before use.
  */
 typedef struct Scru128Generator {
-  /**
-   * Timestamp at last generation.
-   *
-   * @private
-   */
-  uint64_t _ts_last_gen;
+  /** @private */
+  uint64_t _timestamp;
+
+  /** @private */
+  uint32_t _counter_hi;
+
+  /** @private */
+  uint32_t _counter_lo;
 
   /**
-   * Counter at last generation.
+   * Timestamp at the last renewal of `counter_hi` field.
    *
    * @private
    */
-  uint32_t _counter;
-
-  /**
-   * Timestamp at last renewal of per_sec_random.
-   *
-   * @private
-   */
-  uint64_t _ts_last_sec;
-
-  /**
-   * Per-second random value at last generation.
-   *
-   * @private
-   */
-  uint32_t _per_sec_random;
-
-  /**
-   * Maximum number of checking the system clock until it goes forward.
-   *
-   * @private
-   */
-  int _n_clock_check_max;
+  uint64_t _ts_counter_hi;
 } Scru128Generator;
 
 #ifdef __cplusplus
@@ -86,15 +67,15 @@ extern "C" {
  * Creates a SCRU128 ID object from field values.
  *
  * @param out Location where the new object is stored.
- * @param timestamp 44-bit millisecond timestamp field value.
- * @param counter 28-bit per-timestamp monotonic counter field value.
- * @param per_sec_random 24-bit per-second randomness field value.
- * @param per_gen_random 32-bit per-generation randomness field value.
+ * @param timestamp 48-bit `timestamp` field value.
+ * @param counter_hi 24-bit `counter_hi` field value.
+ * @param counter_lo 24-bit `counter_lo` field value.
+ * @param entropy 32-bit `entropy` field value.
  * @return Zero on success or a non-zero integer if any argument is out of the
  * value range of the field.
  */
-int scru128_from_fields(Scru128Id *out, uint64_t timestamp, uint32_t counter,
-                        uint32_t per_sec_random, uint32_t per_gen_random);
+int scru128_from_fields(Scru128Id *out, uint64_t timestamp, uint32_t counter_hi,
+                        uint32_t counter_lo, uint32_t entropy);
 
 /**
  * Creates a SCRU128 ID object from a byte array that represents a 128-bit
@@ -108,36 +89,27 @@ int scru128_from_fields(Scru128Id *out, uint64_t timestamp, uint32_t counter,
 int scru128_from_bytes(Scru128Id *out, const uint8_t *bytes);
 
 /**
- * Creates a SCRU128 ID object from a 26-digit string representation.
+ * Creates a SCRU128 ID object from a 25-digit string representation.
  *
  * @param out Location where the new object is stored.
- * @param text Null-terminated ASCII character array containing the 26-digit
+ * @param text Null-terminated ASCII character array containing the 25-digit
  * string representation.
  * @return Zero on success or a non-zero integer if `text` is not a valid string
  * representation.
  */
 int scru128_from_str(Scru128Id *out, const char *text);
 
-/**
- * Returns the 44-bit millisecond timestamp field value of a SCRU128 ID.
- */
+/** Returns the 48-bit `timestamp` field value of a SCRU128 ID. */
 uint64_t scru128_timestamp(const Scru128Id *id);
 
-/**
- * Returns the 28-bit per-timestamp monotonic counter field value of a SCRU128
- * ID.
- */
-uint32_t scru128_counter(const Scru128Id *id);
+/** Returns the 24-bit `counter_hi` field value of a SCRU128 ID. */
+uint32_t scru128_counter_hi(const Scru128Id *id);
 
-/**
- * Returns the 24-bit per-second randomness field value of a SCRU128 ID.
- */
-uint32_t scru128_per_sec_random(const Scru128Id *id);
+/** Returns the 24-bit `counter_lo` field value of a SCRU128 ID. */
+uint32_t scru128_counter_lo(const Scru128Id *id);
 
-/**
- * Returns the 32-bit per-generation randomness field value of a SCRU128 ID.
- */
-uint32_t scru128_per_gen_random(const Scru128Id *id);
+/** Returns the 32-bit `entropy` field value of a SCRU128 ID. */
+uint32_t scru128_entropy(const Scru128Id *id);
 
 /**
  * Returns a byte array containing the 128-bit unsigned integer representation
@@ -150,11 +122,11 @@ uint32_t scru128_per_gen_random(const Scru128Id *id);
 void scru128_to_bytes(const Scru128Id *id, uint8_t *out);
 
 /**
- * Returns the 26-digit canonical string representation of a SCRU128 ID.
+ * Returns the 25-digit canonical string representation of a SCRU128 ID.
  *
  * @param out Character array where the returned string is stored. The returned
- * string is a 27-byte (including the terminating null byte) ASCII string
- * consisting of 26 `[0-9A-V]` characters.
+ * string is a 26-byte (including the terminating null byte) ASCII string
+ * consisting of 25 `[0-9A-Z]` characters.
  */
 void scru128_to_str(const Scru128Id *id, char *out);
 
@@ -187,12 +159,12 @@ void scru128_initialize_generator(Scru128Generator *g);
 int scru128_generate(Scru128Generator *g, Scru128Id *out);
 
 /**
- * Generates a new SCRU128 ID encoded in the 26-digit canonical string
+ * Generates a new SCRU128 ID encoded in the 25-digit canonical string
  * representation using the generator `g`.
  *
  * @param out Character array where the returned string is stored. The returned
- * string is a 27-byte (including the terminating null byte) ASCII string
- * consisting of 26 `[0-9A-V]` characters.
+ * string is a 26-byte (including the terminating null byte) ASCII string
+ * consisting of 25 `[0-9A-Z]` characters.
  * @return Zero on success or a non-zero integer if the system clock or random
  * number generator returns an error.
  * @attention This function is NOT thread-safe. The generator `g` should be

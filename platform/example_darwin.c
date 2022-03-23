@@ -22,8 +22,4 @@ void scru128_log_warn(const char *message) {
   fprintf(stderr, "WARN: scru128: %s\n", message);
 }
 
-void scru128_log_info(const char *message) {
-  fprintf(stderr, "INFO: scru128: %s\n", message);
-}
-
 #endif /* #ifdef SCRU128_WITH_LOGGING */

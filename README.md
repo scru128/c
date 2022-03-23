@@ -25,13 +25,13 @@ int main() {
   // generate a new identifier object
   Scru128Id x;
   scru128_generate(&g, &x);
-  char text[27];
+  char text[26];
   scru128_to_str(&x, text);
-  puts(text); // e.g. "00S6GVKR1MH58KE72EJD87SDOO"
+  puts(text); // e.g. "036Z951MHJIKZIK2GSL81GR7L"
 
   // generate a textual representation directly
   scru128_generate_string(&g, text);
-  puts(text); // e.g. "00S6GVKR3F7R79I72EJF0J4RGC"
+  puts(text); // e.g. "036Z951MHZX67T63MQ9XE6Q0J"
 
   return 0;
 }
@@ -75,20 +75,15 @@ Alternatively, you can specify the compiler flag `-DSCRU128_NO_GENERATOR` to
 build `scru128.c` without generator functionality.
 
 Logging is disabled by default but can be enabled by the compiler flag
-`-DSCRU128_WITH_LOGGING`. To compile with logging, the following two functions
-have to be implemented to handle log messages. Examples are found in the
-[platform] directory.
+`-DSCRU128_WITH_LOGGING`. To compile with logging, the following function has to
+be implemented to handle log messages. Examples are found in the [platform]
+directory.
 
 ```c
 /**
  * Logs a message at WARNING level.
  */
 void scru128_log_warn(const char *message);
-
-/**
- * Logs a message at INFO level.
- */
-void scru128_log_info(const char *message);
 ```
 
 [platform]: https://github.com/scru128/c/tree/main/platform
