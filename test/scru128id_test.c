@@ -48,7 +48,7 @@ static const char generated_strings[64][TEXT_BUFFER_SIZE] = {
 };
 
 /** Encodes and decodes prepared cases correctly */
-void test_encode_decode() {
+void test_encode_decode(void) {
   struct Case {
     uint64_t timestamp;
     uint32_t counter_hi;
@@ -110,7 +110,7 @@ void test_encode_decode() {
 }
 
 /** Raises error if an invalid string representation is supplied */
-void test_string_validation() {
+void test_string_validation(void) {
   char cases[][TEXT_BUFFER_SIZE] = {
       "",
       " 036Z8PUQ4TSXSIGK6O19Y164Q",
@@ -136,7 +136,7 @@ void test_string_validation() {
 }
 
 /** Has symmetric converters from/to various values */
-void test_symmetric_converters() {
+void test_symmetric_converters(void) {
   int n_cases = 0;
   Scru128Id cases[70];
   scru128_from_fields(&cases[n_cases++], 0, 0, 0, 0);
@@ -175,7 +175,7 @@ void test_symmetric_converters() {
 }
 
 /** Supports comparison methods */
-void test_comparison_methods() {
+void test_comparison_methods(void) {
   int n_cases = 0;
   Scru128Id ordered[73];
   scru128_from_fields(&ordered[n_cases++], 0, 0, 0, 0);
@@ -212,7 +212,7 @@ void test_comparison_methods() {
     printf("  %s: ok\n", #NAME);                                               \
   } while (0)
 
-int main() {
+int main(void) {
   printf("%s:\n", __FILE__);
   run_test(test_encode_decode);
   run_test(test_string_validation);

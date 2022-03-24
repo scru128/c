@@ -7,7 +7,7 @@
 #define N_SAMPLES 100000
 static char samples[N_SAMPLES][32];
 
-void setup() {
+void setup(void) {
   Scru128Generator g;
   scru128_initialize_generator(&g);
   for (int i = 0; i < N_SAMPLES; i++) {
@@ -17,7 +17,7 @@ void setup() {
 }
 
 /** Generates 25-digit canonical string */
-void test_format() {
+void test_format(void) {
   for (int i = 0; i < N_SAMPLES; i++) {
     char *e = samples[i];
     assert(strlen(e) == 25);
@@ -28,14 +28,14 @@ void test_format() {
 }
 
 /** Generates sortable string representation by creation time */
-void test_order() {
+void test_order(void) {
   for (int i = 1; i < N_SAMPLES; i++) {
     assert(strcmp(samples[i - 1], samples[i]) < 0);
   }
 }
 
 /** Encodes unique sortable tuple of timestamp and counters */
-void test_timestamp_and_counters() {
+void test_timestamp_and_counters(void) {
   Scru128Id prev, curr;
   scru128_from_str(&prev, samples[0]);
   for (int i = 1; i < N_SAMPLES; i++) {
@@ -56,7 +56,7 @@ void test_timestamp_and_counters() {
     printf("  %s: ok\n", #NAME);                                               \
   } while (0)
 
-int main() {
+int main(void) {
   printf("%s:\n", __FILE__);
   setup();
   run_test(test_format);
