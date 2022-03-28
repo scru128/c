@@ -214,6 +214,69 @@ void scru128_log_warn(const char *message);
 
 #ifndef SCRU128_NO_GENERATOR
 
+void scru128_initialize_generator(Scru128Generator *g) {
+  g->_timestamp = 0;
+  g->_counter_hi = 0;
+  g->_counter_lo = 0;
+  g->_ts_counter_hi = 0;
+}
+
+/** Errors reported directly by `generate_core()`. */
+enum GenerateCoreError { OK = 0, COUNTER_OVERFLOW_ERROR };
+
+/**
+ * Generates a new SCRU128 ID object, while delegating the caller to take care
+ * of counter overflows.
+ *
+ * @param err_local Location where the error code of this function's original
+ * error id stored.
+ * @return Zero on success or a non-zero integer on failure. This function
+ * returns the value returned by the system clock or random number generator
+ * when either fails.
+ */
+static int generate_core(Scru128Generator *g, Scru128Id *out,
+                         enum GenerateCoreError *err_local) {
+  uint64_t ts;
+  uint32_t next_rand;
+  int err;
+  *err_local = OK;
+
+  if ((err = scru128_get_msec_unixts(&ts))) {
+    return err;
+  }
+  if (ts > g->_timestamp) {
+    g->_timestamp = ts;
+    if ((err = scru128_get_random_uint32(&next_rand))) {
+      return err;
+    }
+    g->_counter_lo = next_rand & MAX_COUNTER_LO;
+    if (ts - g->_ts_counter_hi >= 1000) {
+      g->_ts_counter_hi = ts;
+      if ((err = scru128_get_random_uint32(&next_rand))) {
+        return err;
+      }
+      g->_counter_hi = next_rand & MAX_COUNTER_HI;
+    }
+  } else {
+    g->_counter_lo++;
+    if (g->_counter_lo > MAX_COUNTER_LO) {
+      g->_counter_lo = 0;
+      g->_counter_hi++;
+      if (g->_counter_hi > MAX_COUNTER_HI) {
+        g->_counter_hi = 0;
+        *err_local = COUNTER_OVERFLOW_ERROR;
+        return -1;
+      }
+    }
+  }
+
+  if ((err = scru128_get_random_uint32(&next_rand))) {
+    return err;
+  }
+  return scru128_from_fields(out, g->_timestamp, g->_counter_hi, g->_counter_lo,
+                             next_rand);
+}
+
 /**
  * Defines the behavior on counter overflow.
  *
@@ -244,54 +307,16 @@ static int handle_counter_overflow(Scru128Generator *g) {
   return 0;
 }
 
-void scru128_initialize_generator(Scru128Generator *g) {
-  g->_timestamp = 0;
-  g->_counter_hi = 0;
-  g->_counter_lo = 0;
-  g->_ts_counter_hi = 0;
-}
-
 int scru128_generate(Scru128Generator *g, Scru128Id *out) {
-  uint64_t ts;
-  uint32_t next_rand;
-  int err;
-
-  if ((err = scru128_get_msec_unixts(&ts))) {
-    return err;
-  }
-  if (ts > g->_timestamp) {
-    g->_timestamp = ts;
-    if ((err = scru128_get_random_uint32(&next_rand))) {
+  enum GenerateCoreError err_internal = OK;
+  int err = generate_core(g, out, &err_internal);
+  while (err_internal == COUNTER_OVERFLOW_ERROR) {
+    if ((err = handle_counter_overflow(g))) {
       return err;
     }
-    g->_counter_lo = next_rand & MAX_COUNTER_LO;
-    if (ts - g->_ts_counter_hi >= 1000) {
-      g->_ts_counter_hi = ts;
-      if ((err = scru128_get_random_uint32(&next_rand))) {
-        return err;
-      }
-      g->_counter_hi = next_rand & MAX_COUNTER_HI;
-    }
-  } else {
-    g->_counter_lo++;
-    if (g->_counter_lo > MAX_COUNTER_LO) {
-      g->_counter_lo = 0;
-      g->_counter_hi++;
-      if (g->_counter_hi > MAX_COUNTER_HI) {
-        g->_counter_hi = 0;
-        if ((err = handle_counter_overflow(g))) {
-          return err;
-        }
-        return scru128_generate(g, out);
-      }
-    }
+    err = generate_core(g, out, &err_internal);
   }
-
-  if ((err = scru128_get_random_uint32(&next_rand))) {
-    return err;
-  }
-  return scru128_from_fields(out, g->_timestamp, g->_counter_hi, g->_counter_lo,
-                             next_rand);
+  return err;
 }
 
 int scru128_generate_string(Scru128Generator *g, char *out) {
