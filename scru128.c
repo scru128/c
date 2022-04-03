@@ -101,10 +101,10 @@ int scru128_from_str(Scru128Id *out, const char *text) {
   }
 
   int min_index = 99; // any number greater than size of output array
-  for (int i = -2; i < 25; i += 9) {
-    // implement Base36 using 9-digit words
+  for (int i = -5; i < 25; i += 10) {
+    // implement Base36 using 10-digit words
     uint64_t carry = 0;
-    for (int j = i < 0 ? 0 : i; j < i + 9; j++) {
+    for (int j = i < 0 ? 0 : i; j < i + 10; j++) {
       carry = (carry * 36) + src[j];
     }
 
@@ -115,7 +115,7 @@ int scru128_from_str(Scru128Id *out, const char *text) {
       if (j < 0) {
         return -1; // out of 128-bit value range
       }
-      carry += (uint64_t)out->_bytes[j] * 101559956668416; // 36^9
+      carry += (uint64_t)out->_bytes[j] * 3656158440062976; // 36^10
       out->_bytes[j] = (uint8_t)carry;
       carry = carry >> 8;
     }
@@ -153,16 +153,16 @@ void scru128_to_str(const Scru128Id *id, char *out) {
   }
 
   int min_index = 99; // any number greater than size of output array
-  for (int i = -2; i < 16; i += 6) {
-    // implement Base36 using 48-bit words
-    uint64_t carry = i < 0 ? bytes_to_uint64(&id->_bytes[0], 4)
-                           : bytes_to_uint64(&id->_bytes[i], 6);
+  for (int i = -5; i < 16; i += 7) {
+    // implement Base36 using 56-bit words
+    uint64_t carry = i < 0 ? bytes_to_uint64(&id->_bytes[0], 2)
+                           : bytes_to_uint64(&id->_bytes[i], 7);
 
     // iterate over output array from right to left while carry != 0 but at
     // least up to place already filled
     int j = 24;
     for (; carry > 0 || j > min_index; j--) {
-      carry += (uint64_t)out[j] << 48;
+      carry += (uint64_t)out[j] << 56;
       out[j] = carry % 36;
       carry = carry / 36;
     }
