@@ -204,14 +204,6 @@ int scru128_get_msec_unixts(uint64_t *out);
  */
 int scru128_get_random_uint32(uint32_t *out);
 
-/**
- * Logs a message at WARNING level.
- *
- * @attention A concrete implementation has to be provided to build the library
- * with the compiler flag `-DSCRU128_WITH_LOGGING`.
- */
-void scru128_log_warn(const char *message);
-
 #ifndef SCRU128_NO_GENERATOR
 
 void scru128_initialize_generator(Scru128Generator *g) {
@@ -221,25 +213,10 @@ void scru128_initialize_generator(Scru128Generator *g) {
   g->_ts_counter_hi = 0;
 }
 
-/** Errors reported directly by `generate_core()`. */
-enum GenerateCoreError { OK = 0, COUNTER_OVERFLOW_ERROR };
-
-/**
- * Generates a new SCRU128 ID object, while delegating the caller to take care
- * of counter overflows.
- *
- * @param err_local Location where the error code of this function's original
- * error id stored.
- * @return Zero on success or a non-zero integer on failure. This function
- * returns the value returned by the system clock or random number generator
- * when either fails.
- */
-static int generate_core(Scru128Generator *g, Scru128Id *out,
-                         enum GenerateCoreError *err_local) {
+int scru128_generate(Scru128Generator *g, Scru128Id *out) {
   uint64_t ts;
   uint32_t next_rand;
   int err;
-  *err_local = OK;
 
   if ((err = scru128_get_msec_unixts(&ts))) {
     return err;
@@ -250,24 +227,37 @@ static int generate_core(Scru128Generator *g, Scru128Id *out,
       return err;
     }
     g->_counter_lo = next_rand & MAX_COUNTER_LO;
-    if (ts - g->_ts_counter_hi >= 1000) {
-      g->_ts_counter_hi = ts;
-      if ((err = scru128_get_random_uint32(&next_rand))) {
-        return err;
-      }
-      g->_counter_hi = next_rand & MAX_COUNTER_HI;
-    }
-  } else {
+  } else if (ts + 10000 > g->_timestamp) {
     g->_counter_lo++;
     if (g->_counter_lo > MAX_COUNTER_LO) {
       g->_counter_lo = 0;
       g->_counter_hi++;
       if (g->_counter_hi > MAX_COUNTER_HI) {
         g->_counter_hi = 0;
-        *err_local = COUNTER_OVERFLOW_ERROR;
-        return -1;
+        // increment timestamp at counter overflow
+        g->_timestamp++;
+        if ((err = scru128_get_random_uint32(&next_rand))) {
+          return err;
+        }
+        g->_counter_lo = next_rand & MAX_COUNTER_LO;
       }
     }
+  } else {
+    // reset state if clock moves back more than ten seconds
+    g->_ts_counter_hi = 0;
+    g->_timestamp = ts;
+    if ((err = scru128_get_random_uint32(&next_rand))) {
+      return err;
+    }
+    g->_counter_lo = next_rand & MAX_COUNTER_LO;
+  }
+
+  if (g->_timestamp - g->_ts_counter_hi >= 1000) {
+    g->_ts_counter_hi = g->_timestamp;
+    if ((err = scru128_get_random_uint32(&next_rand))) {
+      return err;
+    }
+    g->_counter_hi = next_rand & MAX_COUNTER_HI;
   }
 
   if ((err = scru128_get_random_uint32(&next_rand))) {
@@ -275,48 +265,6 @@ static int generate_core(Scru128Generator *g, Scru128Id *out,
   }
   return scru128_from_fields(out, g->_timestamp, g->_counter_hi, g->_counter_lo,
                              next_rand);
-}
-
-/**
- * Defines the behavior on counter overflow.
- *
- * Currently, this method busy-waits for the next clock tick and, if the clock
- * does not move forward for a while, reinitializes the generator state.
- *
- * @return Zero on success or a non-zero integer if the system clock returns an
- * error.
- */
-static int handle_counter_overflow(Scru128Generator *g) {
-#ifdef SCRU128_WITH_LOGGING
-  scru128_log_warn("counter overflowing; will wait for next clock tick");
-#endif
-  g->_ts_counter_hi = 0;
-  for (int i = 0; i < 1000000; i++) {
-    uint64_t ts;
-    int err = scru128_get_msec_unixts(&ts);
-    if (err) {
-      return err;
-    } else if (ts > g->_timestamp) {
-      return 0;
-    }
-  }
-#ifdef SCRU128_WITH_LOGGING
-  scru128_log_warn("reset state as clock did not move for a while");
-#endif
-  g->_timestamp = 0;
-  return 0;
-}
-
-int scru128_generate(Scru128Generator *g, Scru128Id *out) {
-  enum GenerateCoreError err_internal = OK;
-  int err = generate_core(g, out, &err_internal);
-  while (err_internal == COUNTER_OVERFLOW_ERROR) {
-    if ((err = handle_counter_overflow(g))) {
-      return err;
-    }
-    err = generate_core(g, out, &err_internal);
-  }
-  return err;
 }
 
 int scru128_generate_string(Scru128Generator *g, char *out) {

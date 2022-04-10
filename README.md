@@ -74,18 +74,6 @@ int scru128_get_random_uint32(uint32_t *out);
 Alternatively, you can specify the compiler flag `-DSCRU128_NO_GENERATOR` to
 build `scru128.c` without generator functionality.
 
-Logging is disabled by default but can be enabled by the compiler flag
-`-DSCRU128_WITH_LOGGING`. To compile with logging, the following function has to
-be implemented to handle log messages. Examples are found in the [platform]
-directory.
-
-```c
-/**
- * Logs a message at WARNING level.
- */
-void scru128_log_warn(const char *message);
-```
-
 [platform]: https://github.com/scru128/c/tree/main/platform
 
 ## License
