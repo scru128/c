@@ -34,6 +34,46 @@ typedef struct Scru128Id {
   uint8_t _bytes[16];
 } Scru128Id;
 
+/** Status code returned by `scru128_generator_last_status()` function. */
+typedef enum Scru128GeneratorStatus {
+  /** Indicates that the generator has yet to generate an ID. */
+  SCRU128_GENERATOR_STATUS_NOT_EXECUTED = 0,
+
+  /**
+   * Indicates that the latest `timestamp` was used because it was greater
+   * than the previous one.
+   */
+  SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP,
+
+  /**
+   * Indicates that `counter_lo` was incremented because the latest
+   * `timestamp` was no greater than the previous one.
+   */
+  SCRU128_GENERATOR_STATUS_COUNTER_LO_INC,
+
+  /**
+   * Indicates that `counter_hi` was incremented because `counter_lo` reached
+   * its maximum value.
+   */
+  SCRU128_GENERATOR_STATUS_COUNTER_HI_INC,
+
+  /**
+   * Indicates that the previous `timestamp` was incremented because
+   * `counter_hi` reached its maximum value.
+   */
+  SCRU128_GENERATOR_STATUS_TIMESTAMP_INC,
+
+  /**
+   * Indicates that the monotonic order of generated IDs was broken because
+   * the latest `timestamp` was less than the previous one by ten seconds or
+   * more.
+   */
+  SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK,
+
+  /** Indicates that the previous generation failed. */
+  SCRU128_GENERATOR_STATUS_ERROR
+} Scru128GeneratorStatus;
+
 /**
  * Represents a SCRU128 ID generator that encapsulates the monotonic counter and
  * other internal states.
@@ -57,6 +97,13 @@ typedef struct Scru128Generator {
    * @private
    */
   uint64_t _ts_counter_hi;
+
+  /**
+   * Status code reported at the last generation.
+   *
+   * @private
+   */
+  Scru128GeneratorStatus _last_status;
 } Scru128Generator;
 
 #ifdef __cplusplus
@@ -136,13 +183,35 @@ void scru128_to_str(const Scru128Id *id, char *out);
  */
 int scru128_compare(const Scru128Id *lhs, const Scru128Id *rhs);
 
+/** Initializes a generator struct `g`. */
+void scru128_initialize_generator(Scru128Generator *g);
+
 /**
- * Initializes a generator struct `g`.
+ * Returns a `Scru128GeneratorStatus` code that indicates the internal state
+ * involved in the last generation of ID.
  *
+ * @note The generator `g` should be protected from concurrent accesses during
+ * the sequential calls to a generation function and this method to avoid race
+ * conditions.
+ */
+Scru128GeneratorStatus scru128_generator_last_status(Scru128Generator *g);
+
+/**
+ * Generates a new SCRU128 ID with the `timestamp` passed using the generator
+ * `g`.
+ *
+ * @param out Location where the generated ID is stored.
+ * @param timestamp 48-bit `timestamp` field value.
+ * @return Zero on success or a non-zero integer if `timestamp` is not a 48-bit
+ * unsigned integer or the random number generator returns an error.
+ * @attention This function is NOT thread-safe. The generator `g` should be
+ * protected from concurrent accesses using a mutex or other synchronization
+ * mechanism to avoid race conditions.
  * @note This function is not available when the library is built with the
  * compiler flag `-DSCRU128_NO_GENERATOR`.
  */
-void scru128_initialize_generator(Scru128Generator *g);
+int scru128_generate_core(Scru128Generator *g, Scru128Id *out,
+                          uint64_t timestamp);
 
 /**
  * Generates a new SCRU128 ID using the generator `g`.

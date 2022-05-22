@@ -18,6 +18,9 @@
 
 #include "scru128.h"
 
+/** Maximum value of 48-bit `timestamp` field. */
+static const uint64_t MAX_TIMESTAMP = 0xffffffffffff;
+
 /** Maximum value of 24-bit `counter_hi` field. */
 static const uint32_t MAX_COUNTER_HI = 0xffffff;
 
@@ -52,7 +55,7 @@ static uint64_t bytes_to_uint64(const uint8_t *bytes, int nbytes) {
 
 int scru128_from_fields(Scru128Id *out, uint64_t timestamp, uint32_t counter_hi,
                         uint32_t counter_lo, uint32_t entropy) {
-  if (timestamp > 0xffffffffffff || counter_hi > MAX_COUNTER_HI ||
+  if (timestamp > MAX_TIMESTAMP || counter_hi > MAX_COUNTER_HI ||
       counter_lo > MAX_COUNTER_LO) {
     return -1;
   }
@@ -183,6 +186,18 @@ int scru128_compare(const Scru128Id *lhs, const Scru128Id *rhs) {
   return 0;
 }
 
+void scru128_initialize_generator(Scru128Generator *g) {
+  g->_timestamp = 0;
+  g->_counter_hi = 0;
+  g->_counter_lo = 0;
+  g->_ts_counter_hi = 0;
+  g->_last_status = SCRU128_GENERATOR_STATUS_NOT_EXECUTED;
+}
+
+Scru128GeneratorStatus scru128_generator_last_status(Scru128Generator *g) {
+  return g->_last_status;
+}
+
 /**
  * Returns the current unix time in milliseconds.
  *
@@ -206,65 +221,80 @@ int scru128_get_random_uint32(uint32_t *out);
 
 #ifndef SCRU128_NO_GENERATOR
 
-void scru128_initialize_generator(Scru128Generator *g) {
-  g->_timestamp = 0;
-  g->_counter_hi = 0;
-  g->_counter_lo = 0;
-  g->_ts_counter_hi = 0;
-}
-
-int scru128_generate(Scru128Generator *g, Scru128Id *out) {
-  uint64_t ts;
+int scru128_generate_core(Scru128Generator *g, Scru128Id *out,
+                          uint64_t timestamp) {
   uint32_t next_rand;
   int err;
 
-  if ((err = scru128_get_msec_unixts(&ts))) {
-    return err;
+  if (timestamp > MAX_TIMESTAMP) {
+    g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
+    return -1;
   }
-  if (ts > g->_timestamp) {
-    g->_timestamp = ts;
+
+  g->_last_status = SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP;
+  if (timestamp > g->_timestamp) {
+    g->_timestamp = timestamp;
     if ((err = scru128_get_random_uint32(&next_rand))) {
+      g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
       return err;
     }
     g->_counter_lo = next_rand & MAX_COUNTER_LO;
-  } else if (ts + 10000 > g->_timestamp) {
+  } else if (timestamp + 10000 > g->_timestamp) {
     g->_counter_lo++;
+    g->_last_status = SCRU128_GENERATOR_STATUS_COUNTER_LO_INC;
     if (g->_counter_lo > MAX_COUNTER_LO) {
       g->_counter_lo = 0;
       g->_counter_hi++;
+      g->_last_status = SCRU128_GENERATOR_STATUS_COUNTER_HI_INC;
       if (g->_counter_hi > MAX_COUNTER_HI) {
         g->_counter_hi = 0;
         // increment timestamp at counter overflow
         g->_timestamp++;
         if ((err = scru128_get_random_uint32(&next_rand))) {
+          g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
           return err;
         }
         g->_counter_lo = next_rand & MAX_COUNTER_LO;
+        g->_last_status = SCRU128_GENERATOR_STATUS_TIMESTAMP_INC;
       }
     }
   } else {
-    // reset state if clock moves back more than ten seconds
+    // reset state if clock moves back by ten seconds or more
     g->_ts_counter_hi = 0;
-    g->_timestamp = ts;
+    g->_timestamp = timestamp;
     if ((err = scru128_get_random_uint32(&next_rand))) {
+      g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
       return err;
     }
     g->_counter_lo = next_rand & MAX_COUNTER_LO;
+    g->_last_status = SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK;
   }
 
   if (g->_timestamp - g->_ts_counter_hi >= 1000) {
     g->_ts_counter_hi = g->_timestamp;
     if ((err = scru128_get_random_uint32(&next_rand))) {
+      g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
       return err;
     }
     g->_counter_hi = next_rand & MAX_COUNTER_HI;
   }
 
   if ((err = scru128_get_random_uint32(&next_rand))) {
+    g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
     return err;
   }
   return scru128_from_fields(out, g->_timestamp, g->_counter_hi, g->_counter_lo,
                              next_rand);
+}
+
+int scru128_generate(Scru128Generator *g, Scru128Id *out) {
+  uint64_t timestamp;
+  int err;
+  if ((err = scru128_get_msec_unixts(&timestamp))) {
+    g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
+    return err;
+  }
+  return scru128_generate_core(g, out, timestamp);
 }
 
 int scru128_generate_string(Scru128Generator *g, char *out) {
