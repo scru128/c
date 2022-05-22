@@ -226,7 +226,7 @@ int scru128_generate_core(Scru128Generator *g, Scru128Id *out,
   uint32_t next_rand;
   int err;
 
-  if (timestamp > MAX_TIMESTAMP) {
+  if (timestamp == 0 || timestamp > MAX_TIMESTAMP) {
     g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
     return -1;
   }

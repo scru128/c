@@ -203,7 +203,7 @@ Scru128GeneratorStatus scru128_generator_last_status(Scru128Generator *g);
  * @param out Location where the generated ID is stored.
  * @param timestamp 48-bit `timestamp` field value.
  * @return Zero on success or a non-zero integer if `timestamp` is not a 48-bit
- * unsigned integer or the random number generator returns an error.
+ * positive integer or the random number generator returns an error.
  * @attention This function is NOT thread-safe. The generator `g` should be
  * protected from concurrent accesses using a mutex or other synchronization
  * mechanism to avoid race conditions.
