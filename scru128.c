@@ -270,7 +270,7 @@ int scru128_generate_core(Scru128Generator *g, Scru128Id *out,
     g->_last_status = SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK;
   }
 
-  if (g->_timestamp - g->_ts_counter_hi >= 1000) {
+  if (g->_timestamp - g->_ts_counter_hi >= 1000 || g->_ts_counter_hi == 0) {
     g->_ts_counter_hi = g->_timestamp;
     if ((err = scru128_get_random_uint32(&next_rand))) {
       g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
