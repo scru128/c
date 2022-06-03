@@ -46,12 +46,11 @@ See [SCRU128 Specification] for details.
 
 ## Build
 
-`scru128.h` and `scru128.c` currently do not include any platform-dependent code
-(they depend on `stdint.h` only) and thus platform-specific functions to access
-to the system clocks and random number generators have to be implemented
-separately. Define the following two functions in a separate source file and
-link it to `scru128.c` at build time. Examples are found in the [platform]
-directory.
+`scru128.h` currently does not include any platform-dependent code (it depends
+on `stdint.h` only) and thus platform-specific functions to access to the system
+clocks and random number generators have to be implemented separately. Implement
+the following two functions in a separate source file and link it to enable the
+generator functionality. Examples are found in the [platform] directory.
 
 ```c
 /**
@@ -70,9 +69,6 @@ int scru128_get_msec_unixts(uint64_t *out);
  */
 int scru128_get_random_uint32(uint32_t *out);
 ```
-
-Alternatively, you can specify the compiler flag `-DSCRU128_NO_GENERATOR` to
-build `scru128.c` without generator functionality.
 
 [platform]: https://github.com/scru128/c/tree/main/platform
 
