@@ -1,9 +1,9 @@
+#include "scru128.h"
+
 #include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-
-#include "scru128.h"
 
 #define TEXT_BUFFER_SIZE 64
 

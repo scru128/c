@@ -16,6 +16,7 @@ decentralized, globally unique time-ordered identifiers. SCRU128 is inspired by
 
 ```c
 #include "scru128.h"
+
 #include <stdio.h>
 
 int main() {
@@ -44,39 +45,37 @@ See [SCRU128 Specification] for details.
 [ksuid]: https://github.com/segmentio/ksuid
 [scru128 specification]: https://github.com/scru128/spec
 
-## Build
+## Platform integration
 
-`scru128.h` currently does not include any platform-dependent code (it depends
-on `stdint.h` only) and thus platform-specific functions to access to the system
-clocks and random number generators have to be implemented separately. Implement
-the following two functions in a separate source file and link it to enable the
-generator functionality. Examples are found in the [platform] directory.
+`scru128.h` does not provide a concrete implementation of `scru128_generate()`,
+so users have to implement it to enable high-level APIs (if necessary) by
+integrating the real-time clock, random number generator, and mutex mechanism
+available in the platform and the `scru128_generate_core()` function. Here is a
+quick example for the BSD-like systems:
 
 ```c
-/**
- * Returns the current unix time in milliseconds.
- *
- * @param out Location where the returned value is stored.
- * @return Zero on success or a non-zero integer on failure.
- */
-int scru128_get_msec_unixts(uint64_t *out);
+#include "scru128.h"
 
-/**
- * Returns a 32-bit random unsigned integer.
- *
- * @param out Location where the returned value is stored.
- * @return Zero on success or a non-zero integer on failure.
- */
-int scru128_get_random_uint32(uint32_t *out);
+#include <stdlib.h> // or <bsd/stdlib.h> on Linux with libbsd
+#include <time.h>
+
+/** @warning This example is NOT thread-safe. */
+int scru128_generate(Scru128Generator *g, Scru128Id *out) {
+  struct timespec tp;
+  int err = clock_gettime(CLOCK_REALTIME, &tp);
+  if (err) {
+    scru128_generator_report_error(g);
+    return err;
+  }
+  uint64_t timestamp = (uint64_t)tp.tv_sec * 1000 + tp.tv_nsec / 1000000;
+  return scru128_generate_core(g, out, timestamp, &arc4random);
+}
 ```
+
+Find more examples in the [platform] directory.
 
 [platform]: https://github.com/scru128/c/tree/main/platform
 
 ## License
 
 Licensed under the Apache License, Version 2.0.
-
-## See also
-
-- [scru128.h](https://github.com/scru128/c/blob/main/scru128.h) for provided
-  functions

@@ -1,6 +1,13 @@
-/*
- * scru128.h - https://github.com/scru128/c
+/**
+ * @file scru128.h
  *
+ * SCRU128: Sortable, Clock and Random number-based Unique identifier
+ *
+ * @version   v0.3.0
+ * @copyright Licensed under the Apache License, Version 2.0
+ * @see       https://github.com/scru128/c
+ */
+/*
  * Copyright 2022 The scru128/c Developers.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +21,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * @file scru128.h
  */
 
 #ifndef SCRU128_H_AVJRBJQI
@@ -29,7 +34,7 @@
  */
 typedef struct Scru128Id {
   /**
-   * Internal 128-bit byte array representation.
+   * 128-bit byte array representation in the big-endian (network) byte order.
    *
    * @private
    */
@@ -278,9 +283,9 @@ static inline void scru128_to_bytes(const Scru128Id *id, uint8_t *out) {
 /**
  * Returns the 25-digit canonical string representation of a SCRU128 ID.
  *
- * @param out Character array where the returned string is stored. The returned
- * string is a 26-byte (including the terminating null byte) ASCII string
- * consisting of 25 `[0-9A-Z]` characters.
+ * @param out At least 26-byte character array where the returned string is
+ * stored. The returned array is a 26-byte null-terminated string consisting of
+ * 25 `[0-9A-Z]` characters and null.
  */
 static inline void scru128_to_str(const Scru128Id *id, char *out) {
   static const char DIGITS[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -330,35 +335,6 @@ static inline int scru128_compare(const Scru128Id *lhs, const Scru128Id *rhs) {
 /** @} */
 
 /**
- * @name Declarations of platform-dependent functions
- *
- * @{
- */
-
-/**
- * Returns a 32-bit random unsigned integer.
- *
- * @param out Location where the returned value is stored.
- * @return Zero on success or a non-zero integer on failure.
- * @attention A concrete implementation has to be provided to enable the
- * generator functionality. Such an implementation should be thread-safe and
- * cryptographically strong.
- */
-int scru128_get_random_uint32(uint32_t *out);
-
-/**
- * Returns the current unix time in milliseconds.
- *
- * @param out Location where the returned value is stored.
- * @return Zero on success or a non-zero integer on failure.
- * @attention A concrete implementation has to be provided to enable the
- * generator functionality.
- */
-int scru128_get_msec_unixts(uint64_t *out);
-
-/** @} */
-
-/**
  * @name Generator-related functions
  *
  * @{
@@ -374,26 +350,25 @@ static inline void scru128_initialize_generator(Scru128Generator *g) {
 }
 
 /**
- * Generates a new SCRU128 ID with the `timestamp` passed using the generator
- * `g`.
+ * Generates a new SCRU128 ID with the given `timestamp` and random number
+ * generator using the generator `g`.
  *
  * @param out Location where the generated ID is stored.
  * @param timestamp 48-bit `timestamp` field value.
+ * @param arc4random Function pointer to `arc4random()` or a compatible function
+ * that returns a (cryptographically strong) random number in the range of
+ * 32-bit unsigned integer.
  * @return Zero on success or a non-zero integer if `timestamp` is not a 48-bit
- * positive integer or the random number generator returns an error.
+ * positive integer.
  * @attention This function is NOT thread-safe. The generator `g` should be
  * protected from concurrent accesses using a mutex or other synchronization
  * mechanism to avoid race conditions.
- * @note This function is available only when a concrete implementation of
- * `scru128_get_random_uint32()` is provided.
  */
 static inline int scru128_generate_core(Scru128Generator *g, Scru128Id *out,
-                                        uint64_t timestamp) {
+                                        uint64_t timestamp,
+                                        uint32_t (*arc4random)(void)) {
   static const uint32_t MAX_COUNTER_HI = 0xffffff;
   static const uint32_t MAX_COUNTER_LO = 0xffffff;
-  uint32_t next_rand;
-  int err;
-
   if (timestamp == 0 || timestamp > 0xffffffffffff) {
     g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
     return -1;
@@ -402,11 +377,7 @@ static inline int scru128_generate_core(Scru128Generator *g, Scru128Id *out,
   g->_last_status = SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP;
   if (timestamp > g->_timestamp) {
     g->_timestamp = timestamp;
-    if ((err = scru128_get_random_uint32(&next_rand))) {
-      g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
-      return err;
-    }
-    g->_counter_lo = next_rand & MAX_COUNTER_LO;
+    g->_counter_lo = (*arc4random)() & MAX_COUNTER_LO;
   } else if (timestamp + 10000 > g->_timestamp) {
     g->_counter_lo++;
     g->_last_status = SCRU128_GENERATOR_STATUS_COUNTER_LO_INC;
@@ -418,11 +389,7 @@ static inline int scru128_generate_core(Scru128Generator *g, Scru128Id *out,
         g->_counter_hi = 0;
         // increment timestamp at counter overflow
         g->_timestamp++;
-        if ((err = scru128_get_random_uint32(&next_rand))) {
-          g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
-          return err;
-        }
-        g->_counter_lo = next_rand & MAX_COUNTER_LO;
+        g->_counter_lo = (*arc4random)() & MAX_COUNTER_LO;
         g->_last_status = SCRU128_GENERATOR_STATUS_TIMESTAMP_INC;
       }
     }
@@ -430,75 +397,17 @@ static inline int scru128_generate_core(Scru128Generator *g, Scru128Id *out,
     // reset state if clock moves back by ten seconds or more
     g->_ts_counter_hi = 0;
     g->_timestamp = timestamp;
-    if ((err = scru128_get_random_uint32(&next_rand))) {
-      g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
-      return err;
-    }
-    g->_counter_lo = next_rand & MAX_COUNTER_LO;
+    g->_counter_lo = (*arc4random)() & MAX_COUNTER_LO;
     g->_last_status = SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK;
   }
 
   if (g->_timestamp - g->_ts_counter_hi >= 1000 || g->_ts_counter_hi == 0) {
     g->_ts_counter_hi = g->_timestamp;
-    if ((err = scru128_get_random_uint32(&next_rand))) {
-      g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
-      return err;
-    }
-    g->_counter_hi = next_rand & MAX_COUNTER_HI;
+    g->_counter_hi = (*arc4random)() & MAX_COUNTER_HI;
   }
 
-  if ((err = scru128_get_random_uint32(&next_rand))) {
-    g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
-    return err;
-  }
   return scru128_from_fields(out, g->_timestamp, g->_counter_hi, g->_counter_lo,
-                             next_rand);
-}
-
-/**
- * Generates a new SCRU128 ID using the generator `g`.
- *
- * @param out Location where the generated ID is stored.
- * @return Zero on success or a non-zero integer if the system clock or random
- * number generator returns an error.
- * @attention This function is NOT thread-safe. The generator `g` should be
- * protected from concurrent accesses using a mutex or other synchronization
- * mechanism to avoid race conditions.
- * @note This function is available only when concrete implementations of
- * `scru128_get_random_uint32()` and `scru128_get_msec_unixts()` are provided.
- */
-static inline int scru128_generate(Scru128Generator *g, Scru128Id *out) {
-  uint64_t timestamp;
-  int err;
-  if ((err = scru128_get_msec_unixts(&timestamp))) {
-    g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
-    return err;
-  }
-  return scru128_generate_core(g, out, timestamp);
-}
-
-/**
- * Generates a new SCRU128 ID encoded in the 25-digit canonical string
- * representation using the generator `g`.
- *
- * @param out Character array where the returned string is stored. The returned
- * string is a 26-byte (including the terminating null byte) ASCII string
- * consisting of 25 `[0-9A-Z]` characters.
- * @return Zero on success or a non-zero integer if the system clock or random
- * number generator returns an error.
- * @attention This function is NOT thread-safe. The generator `g` should be
- * protected from concurrent accesses using a mutex or other synchronization
- * mechanism to avoid race conditions.
- * @note This function is available only when concrete implementations of
- * `scru128_get_random_uint32()` and `scru128_get_msec_unixts()` are provided.
- */
-static inline int scru128_generate_string(Scru128Generator *g, char *out) {
-  Scru128Id id;
-  int result = scru128_generate(g, &id);
-  if (result == 0) {
-    scru128_to_str(&id, out);
-  }
-  return result;
+                             (*arc4random)());
 }
 
 /**
@@ -512,6 +421,55 @@ static inline int scru128_generate_string(Scru128Generator *g, char *out) {
 static inline Scru128GeneratorStatus
 scru128_generator_last_status(Scru128Generator *g) {
   return g->_last_status;
+}
+
+/**
+ * Sets the generator `g` at error status. This function is intended for use by
+ * `scru128_generate()` implementations to set the last status code at error.
+ */
+static inline void scru128_generator_report_error(Scru128Generator *g) {
+  g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
+}
+
+/** @} */
+
+/**
+ * @name High-level generator APIs that require platform integration
+ *
+ * @{
+ */
+
+/**
+ * Generates a new SCRU128 ID using the generator `g`.
+ *
+ * @param out Location where the generated ID is stored.
+ * @return Zero on success or a non-zero integer on failure.
+ * @note This single-file library does not provide a concrete implementation of
+ * this function, so users have to implement it to enable high-level APIs (if
+ * necessary) by integrating the real-time clock, random number generator, and
+ * mutex mechanism available in the platform and the `scru128_generate_core()`
+ * function.
+ */
+int scru128_generate(Scru128Generator *g, Scru128Id *out);
+
+/**
+ * Generates a new SCRU128 ID encoded in the 25-digit canonical string
+ * representation using the generator `g`.
+ *
+ * @param out At least 26-byte character array where the returned string is
+ * stored. The returned array is a 26-byte null-terminated string consisting of
+ * 25 `[0-9A-Z]` characters and null.
+ * @return Return value of `scru128_generate()`.
+ * @note Provide a concrete implementation of `scru128_generate()` to enable
+ * this function.
+ */
+static inline int scru128_generate_string(Scru128Generator *g, char *out) {
+  Scru128Id id;
+  int result = scru128_generate(g, &id);
+  if (result == 0) {
+    scru128_to_str(&id, out);
+  }
+  return result;
 }
 
 /** @} */

@@ -1,4 +1,4 @@
-PLATFORM = ../platform/example_darwin.c
+PLATFORM = ../platform/example_bsd.c
 CFLAGS   = -I.. -Wall -Wextra -pedantic-errors -std=c99
 CXXFLAGS = -I.. -Wall -Wextra -pedantic-errors -std=c++98
 

@@ -1,8 +1,8 @@
+#include "scru128.h"
+
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
-
-#include "scru128.h"
 
 #define N_SAMPLES 100000
 static char samples[N_SAMPLES][32];
@@ -15,6 +15,8 @@ void setup(void) {
     assert(err == 0);
   }
 }
+
+uint32_t arc4random_mock(void) { return 0x42; }
 
 /** Generates 25-digit canonical string */
 void test_format(void) {
@@ -60,13 +62,14 @@ void test_decreasing_or_constant_timestamp(void) {
   assert(scru128_generator_last_status(&g) ==
          SCRU128_GENERATOR_STATUS_NOT_EXECUTED);
 
-  scru128_generate_core(&g, &prev, ts);
+  scru128_generate_core(&g, &prev, ts, &arc4random_mock);
   assert(scru128_generator_last_status(&g) ==
          SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
   assert(scru128_timestamp(&prev) == ts);
 
   for (uint64_t i = 0; i < 100000; i++) {
-    scru128_generate_core(&g, &curr, ts - (i < 9998 ? i : 9998));
+    scru128_generate_core(&g, &curr, ts - (i < 9998 ? i : 9998),
+                          &arc4random_mock);
     assert(scru128_generator_last_status(&g) ==
                SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
            scru128_generator_last_status(&g) ==
@@ -89,12 +92,12 @@ void test_timestamp_rollback(void) {
   assert(scru128_generator_last_status(&g) ==
          SCRU128_GENERATOR_STATUS_NOT_EXECUTED);
 
-  scru128_generate_core(&g, &prev, ts);
+  scru128_generate_core(&g, &prev, ts, &arc4random_mock);
   assert(scru128_generator_last_status(&g) ==
          SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
   assert(scru128_timestamp(&prev) == ts);
 
-  scru128_generate_core(&g, &curr, ts - 10000);
+  scru128_generate_core(&g, &curr, ts - 10000, &arc4random_mock);
   assert(scru128_generator_last_status(&g) ==
          SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK);
   assert(scru128_compare(&prev, &curr) > 0);
