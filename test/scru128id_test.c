@@ -156,10 +156,7 @@ void test_symmetric_converters(void) {
     Scru128Id id_buffer;
     int err;
 
-    uint8_t bytes_buffer[16];
-    scru128_to_bytes(e, bytes_buffer);
-    err = scru128_from_bytes(&id_buffer, bytes_buffer);
-    assert(err == 0);
+    scru128_from_bytes(&id_buffer, e->bytes);
     assert(scru128_compare(&id_buffer, e) == 0);
     char text_buffer[TEXT_BUFFER_SIZE];
     scru128_to_str(e, text_buffer);

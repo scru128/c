@@ -35,10 +35,8 @@
 typedef struct Scru128Id {
   /**
    * 128-bit byte array representation in the big-endian (network) byte order.
-   *
-   * @private
    */
-  uint8_t _bytes[16];
+  uint8_t bytes[16];
 } Scru128Id;
 
 /** Status code returned by `scru128_generator_last_status()` function. */
@@ -142,22 +140,22 @@ static inline int scru128_from_fields(Scru128Id *out, uint64_t timestamp,
     return -1;
   }
 
-  out->_bytes[0] = timestamp >> 40;
-  out->_bytes[1] = timestamp >> 32;
-  out->_bytes[2] = timestamp >> 24;
-  out->_bytes[3] = timestamp >> 16;
-  out->_bytes[4] = timestamp >> 8;
-  out->_bytes[5] = timestamp;
-  out->_bytes[6] = counter_hi >> 16;
-  out->_bytes[7] = counter_hi >> 8;
-  out->_bytes[8] = counter_hi;
-  out->_bytes[9] = counter_lo >> 16;
-  out->_bytes[10] = counter_lo >> 8;
-  out->_bytes[11] = counter_lo;
-  out->_bytes[12] = entropy >> 24;
-  out->_bytes[13] = entropy >> 16;
-  out->_bytes[14] = entropy >> 8;
-  out->_bytes[15] = entropy;
+  out->bytes[0] = timestamp >> 40;
+  out->bytes[1] = timestamp >> 32;
+  out->bytes[2] = timestamp >> 24;
+  out->bytes[3] = timestamp >> 16;
+  out->bytes[4] = timestamp >> 8;
+  out->bytes[5] = timestamp;
+  out->bytes[6] = counter_hi >> 16;
+  out->bytes[7] = counter_hi >> 8;
+  out->bytes[8] = counter_hi;
+  out->bytes[9] = counter_lo >> 16;
+  out->bytes[10] = counter_lo >> 8;
+  out->bytes[11] = counter_lo;
+  out->bytes[12] = entropy >> 24;
+  out->bytes[13] = entropy >> 16;
+  out->bytes[14] = entropy >> 8;
+  out->bytes[15] = entropy;
   return 0;
 }
 
@@ -168,13 +166,11 @@ static inline int scru128_from_fields(Scru128Id *out, uint64_t timestamp,
  * @param out Location where the new object is stored.
  * @param bytes 16-byte byte array that represents a 128-bit unsigned integer in
  * the big-endian (network) byte order.
- * @return Zero on success or a non-zero integer on failure.
  */
-static inline int scru128_from_bytes(Scru128Id *out, const uint8_t *bytes) {
+static inline void scru128_from_bytes(Scru128Id *out, const uint8_t *bytes) {
   for (int_fast8_t i = 0; i < 16; i++) {
-    out->_bytes[i] = bytes[i];
+    out->bytes[i] = bytes[i];
   }
-  return 0;
 }
 
 /**
@@ -214,7 +210,7 @@ static inline int scru128_from_str(Scru128Id *out, const char *text) {
   }
 
   for (int_fast8_t i = 0; i < 16; i++) {
-    out->_bytes[i] = 0;
+    out->bytes[i] = 0;
   }
 
   int_fast8_t min_index = 99; // any number greater than size of output array
@@ -232,8 +228,8 @@ static inline int scru128_from_str(Scru128Id *out, const char *text) {
       if (j < 0) {
         return -1; // out of 128-bit value range
       }
-      carry += (uint64_t)out->_bytes[j] * 3656158440062976; // 36^10
-      out->_bytes[j] = (uint8_t)carry;
+      carry += (uint64_t)out->bytes[j] * 3656158440062976; // 36^10
+      out->bytes[j] = (uint8_t)carry;
       carry = carry >> 8;
     }
     min_index = j;
@@ -243,41 +239,27 @@ static inline int scru128_from_str(Scru128Id *out, const char *text) {
 
 /** Returns the 48-bit `timestamp` field value of a SCRU128 ID. */
 static inline uint64_t scru128_timestamp(const Scru128Id *id) {
-  return (uint64_t)id->_bytes[0] << 40 | (uint64_t)id->_bytes[1] << 32 |
-         (uint64_t)id->_bytes[2] << 24 | (uint64_t)id->_bytes[3] << 16 |
-         (uint64_t)id->_bytes[4] << 8 | (uint64_t)id->_bytes[5];
+  return (uint64_t)id->bytes[0] << 40 | (uint64_t)id->bytes[1] << 32 |
+         (uint64_t)id->bytes[2] << 24 | (uint64_t)id->bytes[3] << 16 |
+         (uint64_t)id->bytes[4] << 8 | (uint64_t)id->bytes[5];
 }
 
 /** Returns the 24-bit `counter_hi` field value of a SCRU128 ID. */
 static inline uint32_t scru128_counter_hi(const Scru128Id *id) {
-  return (uint32_t)id->_bytes[6] << 16 | (uint32_t)id->_bytes[7] << 8 |
-         (uint32_t)id->_bytes[8];
+  return (uint32_t)id->bytes[6] << 16 | (uint32_t)id->bytes[7] << 8 |
+         (uint32_t)id->bytes[8];
 }
 
 /** Returns the 24-bit `counter_lo` field value of a SCRU128 ID. */
 static inline uint32_t scru128_counter_lo(const Scru128Id *id) {
-  return (uint32_t)id->_bytes[9] << 16 | (uint32_t)id->_bytes[10] << 8 |
-         (uint32_t)id->_bytes[11];
+  return (uint32_t)id->bytes[9] << 16 | (uint32_t)id->bytes[10] << 8 |
+         (uint32_t)id->bytes[11];
 }
 
 /** Returns the 32-bit `entropy` field value of a SCRU128 ID. */
 static inline uint32_t scru128_entropy(const Scru128Id *id) {
-  return (uint32_t)id->_bytes[12] << 24 | (uint32_t)id->_bytes[13] << 16 |
-         (uint32_t)id->_bytes[14] << 8 | (uint32_t)id->_bytes[15];
-}
-
-/**
- * Returns a byte array containing the 128-bit unsigned integer representation
- * of a SCRU128 ID.
- *
- * @param out Unsigned byte array where the returned array is stored. The
- * returned array is a 16-byte byte array containing the 128-bit unsigned
- * integer representation in the big-endian (network) byte order.
- */
-static inline void scru128_to_bytes(const Scru128Id *id, uint8_t *out) {
-  for (int_fast8_t i = 0; i < 16; i++) {
-    out[i] = id->_bytes[i];
-  }
+  return (uint32_t)id->bytes[12] << 24 | (uint32_t)id->bytes[13] << 16 |
+         (uint32_t)id->bytes[14] << 8 | (uint32_t)id->bytes[15];
 }
 
 /**
@@ -300,7 +282,7 @@ static inline void scru128_to_str(const Scru128Id *id, char *out) {
     // implement Base36 using 56-bit words
     uint64_t carry = 0;
     for (int_fast8_t j = i < 0 ? 0 : i; j < i + 7; j++) {
-      carry = (carry << 8) | id->_bytes[j];
+      carry = (carry << 8) | id->bytes[j];
     }
 
     // iterate over output array from right to left while carry != 0 but at
@@ -325,8 +307,8 @@ static inline void scru128_to_str(const Scru128Id *id, char *out) {
  */
 static inline int scru128_compare(const Scru128Id *lhs, const Scru128Id *rhs) {
   for (int_fast8_t i = 0; i < 16; i++) {
-    if (lhs->_bytes[i] != rhs->_bytes[i]) {
-      return lhs->_bytes[i] < rhs->_bytes[i] ? -1 : 1;
+    if (lhs->bytes[i] != rhs->bytes[i]) {
+      return lhs->bytes[i] < rhs->bytes[i] ? -1 : 1;
     }
   }
   return 0;
