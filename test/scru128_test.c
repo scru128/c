@@ -11,8 +11,8 @@ void setup(void) {
   Scru128Generator g;
   scru128_initialize_generator(&g);
   for (int i = 0; i < N_SAMPLES; i++) {
-    int err = scru128_generate_string(&g, samples[i]);
-    assert(err == 0);
+    int status = scru128_generate_string(&g, samples[i]);
+    assert(status >= 0);
   }
 }
 
@@ -59,23 +59,16 @@ void test_decreasing_or_constant_timestamp(void) {
 
   uint64_t ts = 0x0123456789ab;
   scru128_initialize_generator(&g);
-  assert(scru128_generator_last_status(&g) ==
-         SCRU128_GENERATOR_STATUS_NOT_EXECUTED);
-
-  scru128_generate_core(&g, &prev, ts, &arc4random_mock);
-  assert(scru128_generator_last_status(&g) ==
-         SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
+  int status = scru128_generate_core(&g, &prev, ts, &arc4random_mock);
+  assert(status == SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
   assert(scru128_timestamp(&prev) == ts);
 
   for (uint64_t i = 0; i < 100000; i++) {
-    scru128_generate_core(&g, &curr, ts - (i < 9998 ? i : 9998),
-                          &arc4random_mock);
-    assert(scru128_generator_last_status(&g) ==
-               SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
-           scru128_generator_last_status(&g) ==
-               SCRU128_GENERATOR_STATUS_COUNTER_HI_INC ||
-           scru128_generator_last_status(&g) ==
-               SCRU128_GENERATOR_STATUS_TIMESTAMP_INC);
+    status = scru128_generate_core(&g, &curr, ts - (i < 9998 ? i : 9998),
+                                   &arc4random_mock);
+    assert(status == SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
+           status == SCRU128_GENERATOR_STATUS_COUNTER_HI_INC ||
+           status == SCRU128_GENERATOR_STATUS_TIMESTAMP_INC);
     assert(scru128_compare(&prev, &curr) < 0);
     prev = curr;
   }
@@ -89,17 +82,12 @@ void test_timestamp_rollback(void) {
 
   uint64_t ts = 0x0123456789ab;
   scru128_initialize_generator(&g);
-  assert(scru128_generator_last_status(&g) ==
-         SCRU128_GENERATOR_STATUS_NOT_EXECUTED);
-
-  scru128_generate_core(&g, &prev, ts, &arc4random_mock);
-  assert(scru128_generator_last_status(&g) ==
-         SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
+  int status = scru128_generate_core(&g, &prev, ts, &arc4random_mock);
+  assert(status == SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
   assert(scru128_timestamp(&prev) == ts);
 
-  scru128_generate_core(&g, &curr, ts - 10000, &arc4random_mock);
-  assert(scru128_generator_last_status(&g) ==
-         SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK);
+  status = scru128_generate_core(&g, &curr, ts - 10000, &arc4random_mock);
+  assert(status == SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK);
   assert(scru128_compare(&prev, &curr) > 0);
   assert(scru128_timestamp(&curr) == ts - 10000);
 }

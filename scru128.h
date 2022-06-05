@@ -39,45 +39,46 @@ typedef struct Scru128Id {
   uint8_t bytes[16];
 } Scru128Id;
 
-/** Status code returned by `scru128_generator_last_status()` function. */
-typedef enum Scru128GeneratorStatus {
-  /** Indicates that the generator has yet to generate an ID. */
-  SCRU128_GENERATOR_STATUS_NOT_EXECUTED = 0,
+/**
+ * @name Status codes returned by generator functions
+ *
+ * @{
+ */
 
-  /**
-   * Indicates that the latest `timestamp` was used because it was greater
-   * than the previous one.
-   */
-  SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP,
+/**
+ * Indicates that the latest `timestamp` was used because it was greater than
+ * the previous one.
+ */
+#define SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP (1)
 
-  /**
-   * Indicates that `counter_lo` was incremented because the latest
-   * `timestamp` was no greater than the previous one.
-   */
-  SCRU128_GENERATOR_STATUS_COUNTER_LO_INC,
+/**
+ * Indicates that `counter_lo` was incremented because the latest `timestamp`
+ * was no greater than the previous one.
+ */
+#define SCRU128_GENERATOR_STATUS_COUNTER_LO_INC (2)
 
-  /**
-   * Indicates that `counter_hi` was incremented because `counter_lo` reached
-   * its maximum value.
-   */
-  SCRU128_GENERATOR_STATUS_COUNTER_HI_INC,
+/**
+ * Indicates that `counter_hi` was incremented because `counter_lo` reached its
+ * maximum value.
+ */
+#define SCRU128_GENERATOR_STATUS_COUNTER_HI_INC (3)
 
-  /**
-   * Indicates that the previous `timestamp` was incremented because
-   * `counter_hi` reached its maximum value.
-   */
-  SCRU128_GENERATOR_STATUS_TIMESTAMP_INC,
+/**
+ * Indicates that the previous `timestamp` was incremented because `counter_hi`
+ * reached its maximum value.
+ */
+#define SCRU128_GENERATOR_STATUS_TIMESTAMP_INC (4)
 
-  /**
-   * Indicates that the monotonic order of generated IDs was broken because
-   * the latest `timestamp` was less than the previous one by ten seconds or
-   * more.
-   */
-  SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK,
+/**
+ * Indicates that the monotonic order of generated IDs was broken because the
+ * latest `timestamp` was less than the previous one by ten seconds or more.
+ */
+#define SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK (5)
 
-  /** Indicates that the previous generation failed. */
-  SCRU128_GENERATOR_STATUS_ERROR
-} Scru128GeneratorStatus;
+/** Indicates that the previous generation failed. */
+#define SCRU128_GENERATOR_STATUS_ERROR (-1)
+
+/** @} */
 
 /**
  * Represents a SCRU128 ID generator that encapsulates the monotonic counter and
@@ -102,13 +103,6 @@ typedef struct Scru128Generator {
    * @private
    */
   uint64_t _ts_counter_hi;
-
-  /**
-   * Status code reported at the last generation.
-   *
-   * @private
-   */
-  Scru128GeneratorStatus _last_status;
 } Scru128Generator;
 
 #ifdef __cplusplus
@@ -328,7 +322,6 @@ static inline void scru128_initialize_generator(Scru128Generator *g) {
   g->_counter_hi = 0;
   g->_counter_lo = 0;
   g->_ts_counter_hi = 0;
-  g->_last_status = SCRU128_GENERATOR_STATUS_NOT_EXECUTED;
 }
 
 /**
@@ -340,39 +333,38 @@ static inline void scru128_initialize_generator(Scru128Generator *g) {
  * @param arc4random Function pointer to `arc4random()` or a compatible function
  * that returns a (cryptographically strong) random number in the range of
  * 32-bit unsigned integer.
- * @return Zero on success or a non-zero integer if `timestamp` is not a 48-bit
- * positive integer.
+ * @return `SCRU128_GENERATOR_STATUS_*` code that describes the characteristics
+ * of generated ID. The returned code is negative if it reports an error.
  * @attention This function is NOT thread-safe. The generator `g` should be
  * protected from concurrent accesses using a mutex or other synchronization
  * mechanism to avoid race conditions.
  */
-static inline int scru128_generate_core(Scru128Generator *g, Scru128Id *out,
-                                        uint64_t timestamp,
-                                        uint32_t (*arc4random)(void)) {
+static inline int8_t scru128_generate_core(Scru128Generator *g, Scru128Id *out,
+                                           uint64_t timestamp,
+                                           uint32_t (*arc4random)(void)) {
   static const uint32_t MAX_COUNTER_HI = 0xffffff;
   static const uint32_t MAX_COUNTER_LO = 0xffffff;
   if (timestamp == 0 || timestamp > 0xffffffffffff) {
-    g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
-    return -1;
+    return SCRU128_GENERATOR_STATUS_ERROR;
   }
 
-  g->_last_status = SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP;
+  int8_t status = SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP;
   if (timestamp > g->_timestamp) {
     g->_timestamp = timestamp;
     g->_counter_lo = (*arc4random)() & MAX_COUNTER_LO;
   } else if (timestamp + 10000 > g->_timestamp) {
     g->_counter_lo++;
-    g->_last_status = SCRU128_GENERATOR_STATUS_COUNTER_LO_INC;
+    status = SCRU128_GENERATOR_STATUS_COUNTER_LO_INC;
     if (g->_counter_lo > MAX_COUNTER_LO) {
       g->_counter_lo = 0;
       g->_counter_hi++;
-      g->_last_status = SCRU128_GENERATOR_STATUS_COUNTER_HI_INC;
+      status = SCRU128_GENERATOR_STATUS_COUNTER_HI_INC;
       if (g->_counter_hi > MAX_COUNTER_HI) {
         g->_counter_hi = 0;
         // increment timestamp at counter overflow
         g->_timestamp++;
         g->_counter_lo = (*arc4random)() & MAX_COUNTER_LO;
-        g->_last_status = SCRU128_GENERATOR_STATUS_TIMESTAMP_INC;
+        status = SCRU128_GENERATOR_STATUS_TIMESTAMP_INC;
       }
     }
   } else {
@@ -380,7 +372,7 @@ static inline int scru128_generate_core(Scru128Generator *g, Scru128Id *out,
     g->_ts_counter_hi = 0;
     g->_timestamp = timestamp;
     g->_counter_lo = (*arc4random)() & MAX_COUNTER_LO;
-    g->_last_status = SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK;
+    status = SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK;
   }
 
   if (g->_timestamp - g->_ts_counter_hi >= 1000 || g->_ts_counter_hi == 0) {
@@ -388,29 +380,12 @@ static inline int scru128_generate_core(Scru128Generator *g, Scru128Id *out,
     g->_counter_hi = (*arc4random)() & MAX_COUNTER_HI;
   }
 
-  return scru128_from_fields(out, g->_timestamp, g->_counter_hi, g->_counter_lo,
-                             (*arc4random)());
-}
-
-/**
- * Returns a `Scru128GeneratorStatus` code that indicates the internal state
- * involved in the last generation of ID.
- *
- * @note The generator `g` should be protected from concurrent accesses during
- * the sequential calls to a generation function and this method to avoid race
- * conditions.
- */
-static inline Scru128GeneratorStatus
-scru128_generator_last_status(Scru128Generator *g) {
-  return g->_last_status;
-}
-
-/**
- * Sets the generator `g` at error status. This function is intended for use by
- * `scru128_generate()` implementations to set the last status code at error.
- */
-static inline void scru128_generator_report_error(Scru128Generator *g) {
-  g->_last_status = SCRU128_GENERATOR_STATUS_ERROR;
+  if (scru128_from_fields(out, g->_timestamp, g->_counter_hi, g->_counter_lo,
+                          (*arc4random)()) == 0) {
+    return status;
+  } else {
+    return SCRU128_GENERATOR_STATUS_ERROR; // unreachable
+  }
 }
 
 /** @} */
@@ -425,12 +400,12 @@ static inline void scru128_generator_report_error(Scru128Generator *g) {
  * Generates a new SCRU128 ID using the generator `g`.
  *
  * @param out Location where the generated ID is stored.
- * @return Zero on success or a non-zero integer on failure.
+ * @return `SCRU128_GENERATOR_STATUS_*` code that describes the characteristics
+ * of generated ID. The returned code is negative if it reports an error.
  * @note This single-file library does not provide a concrete implementation of
- * this function, so users have to implement it to enable high-level APIs (if
- * necessary) by integrating the real-time clock, random number generator, and
- * mutex mechanism available in the platform and the `scru128_generate_core()`
- * function.
+ * this function, so users have to implement it to enable high-level generator
+ * APIs (if necessary) by integrating the real-time clock and random number
+ * generator available in the system and the `scru128_generate_core()` function.
  */
 int scru128_generate(Scru128Generator *g, Scru128Id *out);
 
@@ -447,11 +422,11 @@ int scru128_generate(Scru128Generator *g, Scru128Id *out);
  */
 static inline int scru128_generate_string(Scru128Generator *g, char *out) {
   Scru128Id id;
-  int result = scru128_generate(g, &id);
-  if (result == 0) {
+  int status = scru128_generate(g, &id);
+  if (status >= 0) {
     scru128_to_str(&id, out);
   }
-  return result;
+  return status;
 }
 
 /** @} */

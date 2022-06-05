@@ -48,10 +48,10 @@ See [SCRU128 Specification] for details.
 ## Platform integration
 
 `scru128.h` does not provide a concrete implementation of `scru128_generate()`,
-so users have to implement it to enable high-level APIs (if necessary) by
-integrating the real-time clock, random number generator, and mutex mechanism
-available in the platform and the `scru128_generate_core()` function. Here is a
-quick example for the BSD-like systems:
+so users have to implement it to enable high-level generator APIs (if necessary)
+by integrating the real-time clock and random number generator available in the
+system and the `scru128_generate_core()` function. Here is a quick example for
+the BSD-like systems:
 
 ```c
 #include "scru128.h"
