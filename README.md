@@ -21,7 +21,7 @@ decentralized, globally unique time-ordered identifiers. SCRU128 is inspired by
 
 int main() {
   Scru128Generator g;
-  scru128_initialize_generator(&g);
+  scru128_generator_init(&g);
 
   // generate a new identifier object
   Scru128Id x;

@@ -92,8 +92,7 @@ typedef struct Scru128Id {
  * Represents a SCRU128 ID generator that encapsulates the monotonic counter and
  * other internal states.
  *
- * A new generator must be initialized by `scru128_initialize_generator()`
- * before use.
+ * A new generator must be initialized by `scru128_generator_init()` before use.
  */
 typedef struct Scru128Generator {
   /** @private */
@@ -336,7 +335,7 @@ static inline int scru128_compare(const Scru128Id *id_lft,
  */
 
 /** Initializes a generator struct `g`. */
-static inline void scru128_initialize_generator(Scru128Generator *g) {
+static inline void scru128_generator_init(Scru128Generator *g) {
   g->_timestamp = 0;
   g->_counter_hi = 0;
   g->_counter_lo = 0;

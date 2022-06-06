@@ -9,7 +9,7 @@ static char samples[N_SAMPLES][32];
 
 void setup(void) {
   Scru128Generator g;
-  scru128_initialize_generator(&g);
+  scru128_generator_init(&g);
   for (int i = 0; i < N_SAMPLES; i++) {
     int status = scru128_generate_string(&g, samples[i]);
     assert(status >= 0);
@@ -58,7 +58,7 @@ void test_decreasing_or_constant_timestamp(void) {
   Scru128Id prev, curr;
 
   uint64_t ts = 0x0123456789ab;
-  scru128_initialize_generator(&g);
+  scru128_generator_init(&g);
   int status = scru128_generate_core(&g, &prev, ts, &arc4random_mock);
   assert(status == SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
   assert(scru128_timestamp(&prev) == ts);
@@ -81,7 +81,7 @@ void test_timestamp_rollback(void) {
   Scru128Id prev, curr;
 
   uint64_t ts = 0x0123456789ab;
-  scru128_initialize_generator(&g);
+  scru128_generator_init(&g);
   int status = scru128_generate_core(&g, &prev, ts, &arc4random_mock);
   assert(status == SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
   assert(scru128_timestamp(&prev) == ts);
