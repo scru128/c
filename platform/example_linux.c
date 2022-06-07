@@ -5,7 +5,7 @@
 
 static uint32_t get_random_uint32(void) {
   uint32_t n;
-  getrandom(&n, sizeof(n), 0);
+  getentropy(&n, sizeof(uint32_t));
   return n;
 }
 
