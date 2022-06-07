@@ -76,32 +76,32 @@ void test_encode_decode(void) {
 
   for (int i = 0; i < n_cases; i++) {
     struct Case *e = &cases[i];
-    Scru128Id from_fields, from_string;
+    uint8_t from_fields[SCRU128_LEN], from_string[SCRU128_LEN];
     int err;
-    err = scru128_from_fields(&from_fields, e->timestamp, e->counter_hi,
+    err = scru128_from_fields(from_fields, e->timestamp, e->counter_hi,
                               e->counter_lo, e->entropy);
     assert(err == 0);
-    err = scru128_from_str(&from_string, e->text);
+    err = scru128_from_str(from_string, e->text);
     assert(err == 0);
 
     size_t text_len = strlen(e->text);
     char text_buffer[TEXT_BUFFER_SIZE];
 
-    assert(scru128_timestamp(&from_fields) == e->timestamp);
-    assert(scru128_counter_hi(&from_fields) == e->counter_hi);
-    assert(scru128_counter_lo(&from_fields) == e->counter_lo);
-    assert(scru128_entropy(&from_fields) == e->entropy);
-    scru128_to_str(&from_fields, text_buffer);
+    assert(scru128_timestamp(from_fields) == e->timestamp);
+    assert(scru128_counter_hi(from_fields) == e->counter_hi);
+    assert(scru128_counter_lo(from_fields) == e->counter_lo);
+    assert(scru128_entropy(from_fields) == e->entropy);
+    scru128_to_str(from_fields, text_buffer);
     assert(strlen(text_buffer) == text_len);
     for (size_t j = 0; j < text_len; j++) {
       assert(text_buffer[j] == toupper(e->text[j]));
     }
 
-    assert(scru128_timestamp(&from_string) == e->timestamp);
-    assert(scru128_counter_hi(&from_string) == e->counter_hi);
-    assert(scru128_counter_lo(&from_string) == e->counter_lo);
-    assert(scru128_entropy(&from_string) == e->entropy);
-    scru128_to_str(&from_string, text_buffer);
+    assert(scru128_timestamp(from_string) == e->timestamp);
+    assert(scru128_counter_hi(from_string) == e->counter_hi);
+    assert(scru128_counter_lo(from_string) == e->counter_lo);
+    assert(scru128_entropy(from_string) == e->entropy);
+    scru128_to_str(from_string, text_buffer);
     assert(strlen(text_buffer) == text_len);
     for (size_t j = 0; j < text_len; j++) {
       assert(text_buffer[j] == toupper(e->text[j]));
@@ -129,8 +129,8 @@ void test_string_validation(void) {
   const int n_cases = sizeof(cases) / sizeof(cases[0]);
 
   for (int i = 0; i < n_cases; i++) {
-    Scru128Id x;
-    int err = scru128_from_str(&x, cases[i]);
+    uint8_t x[SCRU128_LEN];
+    int err = scru128_from_str(x, cases[i]);
     assert(err != 0);
   }
 }
@@ -138,66 +138,67 @@ void test_string_validation(void) {
 /** Has symmetric converters from/to various values */
 void test_symmetric_converters(void) {
   int n_cases = 0;
-  Scru128Id cases[70];
-  scru128_from_fields(&cases[n_cases++], 0, 0, 0, 0);
-  scru128_from_fields(&cases[n_cases++], MAX_UINT48, 0, 0, 0);
-  scru128_from_fields(&cases[n_cases++], 0, MAX_UINT24, 0, 0);
-  scru128_from_fields(&cases[n_cases++], 0, 0, MAX_UINT24, 0);
-  scru128_from_fields(&cases[n_cases++], 0, 0, 0, MAX_UINT32);
-  scru128_from_fields(&cases[n_cases++], MAX_UINT48, MAX_UINT24, MAX_UINT24,
+  uint8_t cases[70][SCRU128_LEN];
+  scru128_from_fields(cases[n_cases++], 0, 0, 0, 0);
+  scru128_from_fields(cases[n_cases++], MAX_UINT48, 0, 0, 0);
+  scru128_from_fields(cases[n_cases++], 0, MAX_UINT24, 0, 0);
+  scru128_from_fields(cases[n_cases++], 0, 0, MAX_UINT24, 0);
+  scru128_from_fields(cases[n_cases++], 0, 0, 0, MAX_UINT32);
+  scru128_from_fields(cases[n_cases++], MAX_UINT48, MAX_UINT24, MAX_UINT24,
                       MAX_UINT32);
 
   for (int i = 0; i < n_generated_strings; i++) {
-    scru128_from_str(&cases[n_cases++], generated_strings[i]);
+    scru128_from_str(cases[n_cases++], generated_strings[i]);
   }
 
   for (int i = 0; i < n_cases; i++) {
-    Scru128Id *e = &cases[i];
-    Scru128Id id_buffer;
+    uint8_t *e = cases[i];
+    uint8_t id_buffer[SCRU128_LEN];
     int err;
 
-    scru128_from_bytes(&id_buffer, e->bytes);
-    assert(scru128_compare(&id_buffer, e) == 0);
+    scru128_copy(id_buffer, e);
+    assert(scru128_compare(id_buffer, e) == 0);
     char text_buffer[TEXT_BUFFER_SIZE];
     scru128_to_str(e, text_buffer);
-    err = scru128_from_str(&id_buffer, text_buffer);
+    err = scru128_from_str(id_buffer, text_buffer);
     assert(err == 0);
-    assert(scru128_compare(&id_buffer, e) == 0);
-    err = scru128_from_fields(&id_buffer, scru128_timestamp(e),
+    assert(scru128_compare(id_buffer, e) == 0);
+    err = scru128_from_fields(id_buffer, scru128_timestamp(e),
                               scru128_counter_hi(e), scru128_counter_lo(e),
                               scru128_entropy(e));
     assert(err == 0);
-    assert(scru128_compare(&id_buffer, e) == 0);
+    assert(scru128_compare(id_buffer, e) == 0);
   }
 }
 
 /** Supports comparison methods */
 void test_comparison_methods(void) {
   int n_cases = 0;
-  Scru128Id ordered[73];
-  scru128_from_fields(&ordered[n_cases++], 0, 0, 0, 0);
-  scru128_from_fields(&ordered[n_cases++], 0, 0, 0, 1);
-  scru128_from_fields(&ordered[n_cases++], 0, 0, 0, MAX_UINT32);
-  scru128_from_fields(&ordered[n_cases++], 0, 0, 1, 0);
-  scru128_from_fields(&ordered[n_cases++], 0, 0, MAX_UINT24, 0);
-  scru128_from_fields(&ordered[n_cases++], 0, 1, 0, 0);
-  scru128_from_fields(&ordered[n_cases++], 0, MAX_UINT24, 0, 0);
-  scru128_from_fields(&ordered[n_cases++], 1, 0, 0, 0);
-  scru128_from_fields(&ordered[n_cases++], 2, 0, 0, 0);
+  uint8_t ordered[73][SCRU128_LEN];
+  scru128_from_fields(ordered[n_cases++], 0, 0, 0, 0);
+  scru128_from_fields(ordered[n_cases++], 0, 0, 0, 1);
+  scru128_from_fields(ordered[n_cases++], 0, 0, 0, MAX_UINT32);
+  scru128_from_fields(ordered[n_cases++], 0, 0, 1, 0);
+  scru128_from_fields(ordered[n_cases++], 0, 0, MAX_UINT24, 0);
+  scru128_from_fields(ordered[n_cases++], 0, 1, 0, 0);
+  scru128_from_fields(ordered[n_cases++], 0, MAX_UINT24, 0, 0);
+  scru128_from_fields(ordered[n_cases++], 1, 0, 0, 0);
+  scru128_from_fields(ordered[n_cases++], 2, 0, 0, 0);
 
   for (int i = 0; i < n_generated_strings; i++) {
-    scru128_from_str(&ordered[n_cases++], generated_strings[i]);
+    scru128_from_str(ordered[n_cases++], generated_strings[i]);
   }
 
-  Scru128Id *prev = &ordered[0];
+  uint8_t *prev = ordered[0];
   for (int i = 1; i < n_cases; i++) {
-    Scru128Id *curr = &ordered[i];
+    uint8_t *curr = ordered[i];
     assert(scru128_compare(curr, prev) > 0);
     assert(scru128_compare(prev, curr) < 0);
 
-    Scru128Id clone = *curr;
-    assert(curr != &clone);
-    assert(scru128_compare(curr, &clone) == 0);
+    uint8_t clone[SCRU128_LEN];
+    scru128_copy(clone, curr);
+    assert(curr != clone);
+    assert(scru128_compare(curr, clone) == 0);
 
     prev = curr;
   }

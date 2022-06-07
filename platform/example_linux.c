@@ -10,12 +10,12 @@ static uint32_t get_random_uint32(void) {
 }
 
 /** @warning This example is NOT thread-safe. */
-int scru128_generate(Scru128Generator *g, Scru128Id *out) {
+int scru128_generate(Scru128Generator *g, uint8_t *id_out) {
   struct timespec tp;
   int err = clock_gettime(CLOCK_REALTIME, &tp);
   if (err) {
     return SCRU128_GENERATOR_STATUS_ERROR;
   }
   uint64_t timestamp = (uint64_t)tp.tv_sec * 1000 + tp.tv_nsec / 1000000;
-  return scru128_generate_core(g, out, timestamp, &get_random_uint32);
+  return scru128_generate_core(g, id_out, timestamp, &get_random_uint32);
 }

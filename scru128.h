@@ -37,17 +37,6 @@
 #define SCRU128_STR_LEN (26)
 
 /**
- * Represents a SCRU128 ID and provides various converters and comparison
- * operators.
- */
-typedef struct Scru128Id {
-  /**
-   * 128-bit byte array representation in the big-endian (network) byte order.
-   */
-  uint8_t bytes[SCRU128_LEN];
-} Scru128Id;
-
-/**
  * @name Status codes returned by generator functions
  *
  * @{
@@ -128,13 +117,16 @@ extern "C" {
 /**
  * @name Identifier-related functions
  *
+ * This library represents a binary SCRU128 ID as a 16-byte `uint8_t` array
+ * containing a 128-bit unsigned integer in the big-endian (network) byte order.
+ *
  * @{
  */
 
 /**
- * Creates a SCRU128 ID object from field values.
+ * Creates a SCRU128 ID from field values.
  *
- * @param id_out Location where the new object is stored.
+ * @param id_out 16-byte byte array where the created SCRU128 ID is stored.
  * @param timestamp 48-bit `timestamp` field value.
  * @param counter_hi 24-bit `counter_hi` field value.
  * @param counter_lo 24-bit `counter_lo` field value.
@@ -142,7 +134,7 @@ extern "C" {
  * @return Zero on success or a non-zero integer if any argument is out of the
  * value range of the field.
  */
-static inline int scru128_from_fields(Scru128Id *id_out, uint64_t timestamp,
+static inline int scru128_from_fields(uint8_t *id_out, uint64_t timestamp,
                                       uint32_t counter_hi, uint32_t counter_lo,
                                       uint32_t entropy) {
   if (timestamp > SCRU128_MAX_TIMESTAMP ||
@@ -151,49 +143,47 @@ static inline int scru128_from_fields(Scru128Id *id_out, uint64_t timestamp,
     return -1;
   }
 
-  id_out->bytes[0] = timestamp >> 40;
-  id_out->bytes[1] = timestamp >> 32;
-  id_out->bytes[2] = timestamp >> 24;
-  id_out->bytes[3] = timestamp >> 16;
-  id_out->bytes[4] = timestamp >> 8;
-  id_out->bytes[5] = timestamp;
-  id_out->bytes[6] = counter_hi >> 16;
-  id_out->bytes[7] = counter_hi >> 8;
-  id_out->bytes[8] = counter_hi;
-  id_out->bytes[9] = counter_lo >> 16;
-  id_out->bytes[10] = counter_lo >> 8;
-  id_out->bytes[11] = counter_lo;
-  id_out->bytes[12] = entropy >> 24;
-  id_out->bytes[13] = entropy >> 16;
-  id_out->bytes[14] = entropy >> 8;
-  id_out->bytes[15] = entropy;
+  id_out[0] = timestamp >> 40;
+  id_out[1] = timestamp >> 32;
+  id_out[2] = timestamp >> 24;
+  id_out[3] = timestamp >> 16;
+  id_out[4] = timestamp >> 8;
+  id_out[5] = timestamp;
+  id_out[6] = counter_hi >> 16;
+  id_out[7] = counter_hi >> 8;
+  id_out[8] = counter_hi;
+  id_out[9] = counter_lo >> 16;
+  id_out[10] = counter_lo >> 8;
+  id_out[11] = counter_lo;
+  id_out[12] = entropy >> 24;
+  id_out[13] = entropy >> 16;
+  id_out[14] = entropy >> 8;
+  id_out[15] = entropy;
   return 0;
 }
 
 /**
- * Creates a SCRU128 ID object from a byte array that represents a 128-bit
- * unsigned integer.
+ * Copies a SCRU128 ID from `id_src` to `id_dst`.
  *
- * @param id_out Location where the new object is stored.
- * @param bytes 16-byte byte array that represents a 128-bit unsigned integer in
- * the big-endian (network) byte order.
+ * @param id_dst 16-byte byte array where the copied SCRU128 ID is stored.
+ * @param id_src 16-byte big-endian byte array that represents a SCRU128 ID.
  */
-static inline void scru128_from_bytes(Scru128Id *id_out, const uint8_t *bytes) {
+static inline void scru128_copy(uint8_t *id_dst, const uint8_t *id_src) {
   for (int_fast8_t i = 0; i < SCRU128_LEN; i++) {
-    id_out->bytes[i] = bytes[i];
+    id_dst[i] = id_src[i];
   }
 }
 
 /**
- * Creates a SCRU128 ID object from a 25-digit string representation.
+ * Creates a SCRU128 ID from a 25-digit string representation.
  *
- * @param id_out Location where the new object is stored.
+ * @param id_out 16-byte byte array where the created SCRU128 ID is stored.
  * @param str Null-terminated ASCII character array containing the 25-digit
  * string representation.
  * @return Zero on success or a non-zero integer if `str` is not a valid string
  * representation.
  */
-static inline int scru128_from_str(Scru128Id *id_out, const char *str) {
+static inline int scru128_from_str(uint8_t *id_out, const char *str) {
   // O(1) map from ASCII code points to Base36 digit values.
   static const uint8_t DECODE_MAP[128] = {
       0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -221,7 +211,7 @@ static inline int scru128_from_str(Scru128Id *id_out, const char *str) {
   }
 
   for (int_fast8_t i = 0; i < SCRU128_LEN; i++) {
-    id_out->bytes[i] = 0;
+    id_out[i] = 0;
   }
 
   int_fast8_t min_index = 99; // any number greater than size of output array
@@ -239,8 +229,8 @@ static inline int scru128_from_str(Scru128Id *id_out, const char *str) {
       if (j < 0) {
         return -1; // out of 128-bit value range
       }
-      carry += (uint64_t)id_out->bytes[j] * 3656158440062976; // 36^10
-      id_out->bytes[j] = (uint8_t)carry;
+      carry += (uint64_t)id_out[j] * 3656158440062976; // 36^10
+      id_out[j] = (uint8_t)carry;
       carry = carry >> 8;
     }
     min_index = j;
@@ -248,39 +238,53 @@ static inline int scru128_from_str(Scru128Id *id_out, const char *str) {
   return 0;
 }
 
-/** Returns the 48-bit `timestamp` field value of a SCRU128 ID. */
-static inline uint64_t scru128_timestamp(const Scru128Id *id) {
-  return (uint64_t)id->bytes[0] << 40 | (uint64_t)id->bytes[1] << 32 |
-         (uint64_t)id->bytes[2] << 24 | (uint64_t)id->bytes[3] << 16 |
-         (uint64_t)id->bytes[4] << 8 | (uint64_t)id->bytes[5];
+/**
+ * Returns the 48-bit `timestamp` field value of a SCRU128 ID.
+ *
+ * @param id 16-byte big-endian byte array that represents a SCRU128 ID.
+ */
+static inline uint64_t scru128_timestamp(const uint8_t *id) {
+  return (uint64_t)id[0] << 40 | (uint64_t)id[1] << 32 | (uint64_t)id[2] << 24 |
+         (uint64_t)id[3] << 16 | (uint64_t)id[4] << 8 | (uint64_t)id[5];
 }
 
-/** Returns the 24-bit `counter_hi` field value of a SCRU128 ID. */
-static inline uint32_t scru128_counter_hi(const Scru128Id *id) {
-  return (uint32_t)id->bytes[6] << 16 | (uint32_t)id->bytes[7] << 8 |
-         (uint32_t)id->bytes[8];
+/**
+ * Returns the 24-bit `counter_hi` field value of a SCRU128 ID.
+ *
+ * @param id 16-byte big-endian byte array that represents a SCRU128 ID.
+ */
+static inline uint32_t scru128_counter_hi(const uint8_t *id) {
+  return (uint32_t)id[6] << 16 | (uint32_t)id[7] << 8 | (uint32_t)id[8];
 }
 
-/** Returns the 24-bit `counter_lo` field value of a SCRU128 ID. */
-static inline uint32_t scru128_counter_lo(const Scru128Id *id) {
-  return (uint32_t)id->bytes[9] << 16 | (uint32_t)id->bytes[10] << 8 |
-         (uint32_t)id->bytes[11];
+/**
+ * Returns the 24-bit `counter_lo` field value of a SCRU128 ID.
+ *
+ * @param id 16-byte big-endian byte array that represents a SCRU128 ID.
+ */
+static inline uint32_t scru128_counter_lo(const uint8_t *id) {
+  return (uint32_t)id[9] << 16 | (uint32_t)id[10] << 8 | (uint32_t)id[11];
 }
 
-/** Returns the 32-bit `entropy` field value of a SCRU128 ID. */
-static inline uint32_t scru128_entropy(const Scru128Id *id) {
-  return (uint32_t)id->bytes[12] << 24 | (uint32_t)id->bytes[13] << 16 |
-         (uint32_t)id->bytes[14] << 8 | (uint32_t)id->bytes[15];
+/**
+ * Returns the 32-bit `entropy` field value of a SCRU128 ID.
+ *
+ * @param id 16-byte big-endian byte array that represents a SCRU128 ID.
+ */
+static inline uint32_t scru128_entropy(const uint8_t *id) {
+  return (uint32_t)id[12] << 24 | (uint32_t)id[13] << 16 |
+         (uint32_t)id[14] << 8 | (uint32_t)id[15];
 }
 
 /**
  * Returns the 25-digit canonical string representation of a SCRU128 ID.
  *
+ * @param id 16-byte big-endian byte array that represents a SCRU128 ID.
  * @param str_out 26-byte character array where the returned string is stored.
  * The returned array is a 26-byte null-terminated string consisting of 25
  * `[0-9A-Z]` characters and null.
  */
-static inline void scru128_to_str(const Scru128Id *id, char *str_out) {
+static inline void scru128_to_str(const uint8_t *id, char *str_out) {
   static const char DIGITS[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
   // zero-fill 25 elements to use in process and 26th as NUL char
@@ -293,7 +297,7 @@ static inline void scru128_to_str(const Scru128Id *id, char *str_out) {
     // implement Base36 using 56-bit words
     uint64_t carry = 0;
     for (int_fast8_t j = i < 0 ? 0 : i; j < i + 7; j++) {
-      carry = (carry << 8) | id->bytes[j];
+      carry = (carry << 8) | id[j];
     }
 
     // iterate over output array from right to left while carry != 0 but at
@@ -315,12 +319,15 @@ static inline void scru128_to_str(const Scru128Id *id, char *str_out) {
 /**
  * Returns a negative integer, zero, or positive integer if `id_lft` is less
  * than, equal to, or greater than `id_rgt`, respectively.
+ *
+ * @param id_lft 16-byte big-endian byte array that represents a SCRU128 ID.
+ * @param id_rgt 16-byte big-endian byte array that represents a SCRU128 ID.
  */
-static inline int scru128_compare(const Scru128Id *id_lft,
-                                  const Scru128Id *id_rgt) {
+static inline int scru128_compare(const uint8_t *id_lft,
+                                  const uint8_t *id_rgt) {
   for (int_fast8_t i = 0; i < SCRU128_LEN; i++) {
-    if (id_lft->bytes[i] != id_rgt->bytes[i]) {
-      return id_lft->bytes[i] < id_rgt->bytes[i] ? -1 : 1;
+    if (id_lft[i] != id_rgt[i]) {
+      return id_lft[i] < id_rgt[i] ? -1 : 1;
     }
   }
   return 0;
@@ -344,9 +351,10 @@ static inline void scru128_generator_init(Scru128Generator *g) {
 
 /**
  * Generates a new SCRU128 ID with the given `timestamp` and random number
- * generator using the generator `g`.
+ * generator.
  *
- * @param id_out Location where the generated ID is stored.
+ * @param g Generator state object used to generate an ID.
+ * @param id_out 16-byte byte array where the generated SCRU128 ID is stored.
  * @param timestamp 48-bit `timestamp` field value.
  * @param arc4random Function pointer to `arc4random()` or a compatible function
  * that returns a (cryptographically strong) random number in the range of
@@ -357,8 +365,7 @@ static inline void scru128_generator_init(Scru128Generator *g) {
  * protected from concurrent accesses using a mutex or other synchronization
  * mechanism to avoid race conditions.
  */
-static inline int8_t scru128_generate_core(Scru128Generator *g,
-                                           Scru128Id *id_out,
+static inline int8_t scru128_generate_core(Scru128Generator *g, uint8_t *id_out,
                                            uint64_t timestamp,
                                            uint32_t (*arc4random)(void)) {
   if (timestamp == 0 || timestamp > SCRU128_MAX_TIMESTAMP) {
@@ -414,9 +421,10 @@ static inline int8_t scru128_generate_core(Scru128Generator *g,
  */
 
 /**
- * Generates a new SCRU128 ID using the generator `g`.
+ * Generates a new SCRU128 ID.
  *
- * @param id_out Location where the generated ID is stored.
+ * @param g Generator state object used to generate an ID.
+ * @param id_out 16-byte byte array where the generated SCRU128 ID is stored.
  * @return `SCRU128_GENERATOR_STATUS_*` code that describes the characteristics
  * of generated ID. The returned code is negative if it reports an error.
  * @note This single-file library does not provide a concrete implementation of
@@ -424,12 +432,13 @@ static inline int8_t scru128_generate_core(Scru128Generator *g,
  * APIs (if necessary) by integrating the real-time clock and random number
  * generator available in the system and the `scru128_generate_core()` function.
  */
-int scru128_generate(Scru128Generator *g, Scru128Id *id_out);
+int scru128_generate(Scru128Generator *g, uint8_t *id_out);
 
 /**
  * Generates a new SCRU128 ID encoded in the 25-digit canonical string
- * representation using the generator `g`.
+ * representation.
  *
+ * @param g Generator state object used to generate an ID.
  * @param str_out 26-byte character array where the returned string is stored.
  * The returned array is a 26-byte null-terminated string consisting of 25
  * `[0-9A-Z]` characters and null.
@@ -438,10 +447,10 @@ int scru128_generate(Scru128Generator *g, Scru128Id *id_out);
  * this function.
  */
 static inline int scru128_generate_string(Scru128Generator *g, char *str_out) {
-  Scru128Id id;
-  int status = scru128_generate(g, &id);
+  uint8_t id[SCRU128_LEN];
+  int status = scru128_generate(g, id);
   if (status >= 0) {
-    scru128_to_str(&id, str_out);
+    scru128_to_str(id, str_out);
   }
   return status;
 }

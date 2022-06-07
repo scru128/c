@@ -24,10 +24,10 @@ int main() {
   scru128_generator_init(&g);
 
   // generate a new identifier object
-  Scru128Id x;
-  scru128_generate(&g, &x);
-  char text[26];
-  scru128_to_str(&x, text);
+  uint8_t x[SCRU128_LEN];
+  scru128_generate(&g, x);
+  char text[SCRU128_STR_LEN];
+  scru128_to_str(x, text);
   puts(text); // e.g. "036Z951MHJIKZIK2GSL81GR7L"
 
   // generate a textual representation directly
@@ -60,15 +60,14 @@ the BSD-like systems:
 #include <time.h>
 
 /** @warning This example is NOT thread-safe. */
-int scru128_generate(Scru128Generator *g, Scru128Id *out) {
+int scru128_generate(Scru128Generator *g, uint8_t *id_out) {
   struct timespec tp;
   int err = clock_gettime(CLOCK_REALTIME, &tp);
   if (err) {
-    scru128_generator_report_error(g);
-    return err;
+    return SCRU128_GENERATOR_STATUS_ERROR;
   }
   uint64_t timestamp = (uint64_t)tp.tv_sec * 1000 + tp.tv_nsec / 1000000;
-  return scru128_generate_core(g, out, timestamp, &arc4random);
+  return scru128_generate_core(g, id_out, timestamp, &arc4random);
 }
 ```
 
