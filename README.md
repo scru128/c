@@ -78,3 +78,8 @@ Find more examples in the [platform] directory.
 ## License
 
 Licensed under the Apache License, Version 2.0.
+
+## See also
+
+- [Doxygen generated docs](https://scru128.github.io/c/scru128_8h.html) for
+  provided functions
