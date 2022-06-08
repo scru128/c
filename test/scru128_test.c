@@ -16,8 +16,6 @@ void setup(void) {
   }
 }
 
-uint32_t arc4random_mock(void) { return 0x42; }
-
 /** Generates 25-digit canonical string */
 void test_format(void) {
   for (int i = 0; i < N_SAMPLES; i++) {
@@ -52,46 +50,6 @@ void test_timestamp_and_counters(void) {
   }
 }
 
-/** Generates increasing IDs even with decreasing or constant timestamp */
-void test_decreasing_or_constant_timestamp(void) {
-  Scru128Generator g;
-  uint8_t prev[SCRU128_LEN], curr[SCRU128_LEN];
-
-  uint64_t ts = 0x0123456789ab;
-  scru128_generator_init(&g);
-  int status = scru128_generate_core(&g, prev, ts, &arc4random_mock);
-  assert(status == SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
-  assert(scru128_timestamp(prev) == ts);
-
-  for (uint64_t i = 0; i < 100000; i++) {
-    status = scru128_generate_core(&g, curr, ts - (i < 9998 ? i : 9998),
-                                   &arc4random_mock);
-    assert(status == SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
-           status == SCRU128_GENERATOR_STATUS_COUNTER_HI_INC ||
-           status == SCRU128_GENERATOR_STATUS_TIMESTAMP_INC);
-    assert(scru128_compare(prev, curr) < 0);
-    memcpy(curr, prev, SCRU128_LEN);
-  }
-  assert(scru128_timestamp(prev) >= ts);
-}
-
-/** Breaks increasing order of IDs if timestamp moves backward a lot */
-void test_timestamp_rollback(void) {
-  Scru128Generator g;
-  uint8_t prev[SCRU128_LEN], curr[SCRU128_LEN];
-
-  uint64_t ts = 0x0123456789ab;
-  scru128_generator_init(&g);
-  int status = scru128_generate_core(&g, prev, ts, &arc4random_mock);
-  assert(status == SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
-  assert(scru128_timestamp(prev) == ts);
-
-  status = scru128_generate_core(&g, curr, ts - 10000, &arc4random_mock);
-  assert(status == SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK);
-  assert(scru128_compare(prev, curr) > 0);
-  assert(scru128_timestamp(curr) == ts - 10000);
-}
-
 #define run_test(NAME)                                                         \
   do {                                                                         \
     (NAME)();                                                                  \
@@ -104,7 +62,5 @@ int main(void) {
   run_test(test_format);
   run_test(test_order);
   run_test(test_timestamp_and_counters);
-  run_test(test_decreasing_or_constant_timestamp);
-  run_test(test_timestamp_rollback);
   return 0;
 }
