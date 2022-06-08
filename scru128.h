@@ -182,27 +182,17 @@ static inline void scru128_copy(uint8_t *id_dst, const uint8_t *id_src) {
  * string representation.
  * @return Zero on success or a non-zero integer if `str` is not a valid string
  * representation.
+ * @note This function accepts ASCII-compatible byte arrays only.
  */
 static inline int scru128_from_str(uint8_t *id_out, const char *str) {
-  // O(1) map from ASCII code points to Base36 digit values.
-  static const uint8_t DECODE_MAP[128] = {
-      0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-      0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-      0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-      0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xff, 0xff,
-      0xff, 0xff, 0xff, 0xff, 0xff, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
-      0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c,
-      0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0xff, 0xff, 0xff, 0xff, 0xff,
-      0xff, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14,
-      0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20,
-      0x21, 0x22, 0x23, 0xff, 0xff, 0xff, 0xff, 0xff};
-
   uint8_t src[25];
   for (int_fast8_t i = 0; i < 25; i++) {
     unsigned char c = str[i];
-    src[i] = c > 127 ? 0xff : DECODE_MAP[c];
-    if (src[i] == 0xff) {
+    if (48 <= c && c <= 57) {
+      src[i] = c & 0x0f; // 0-9
+    } else if ((65 <= c && c <= 90) || (97 <= c && c <= 122)) {
+      src[i] = (c & 0x1f) + 9; // A-Za-z
+    } else {
       return -1; // invalid digit
     }
   }
@@ -431,6 +421,10 @@ static inline int8_t scru128_generate_core(Scru128Generator *g, uint8_t *id_out,
  * this function, so users have to implement it to enable high-level generator
  * APIs (if necessary) by integrating the real-time clock and random number
  * generator available in the system and the `scru128_generate_core()` function.
+ * @attention The thread-safety of this function is implementation-dependent,
+ * but it is usually NOT thread-safe. The generator `g` should be protected from
+ * concurrent accesses using a mutex or other synchronization mechanism to avoid
+ * race conditions.
  */
 int scru128_generate(Scru128Generator *g, uint8_t *id_out);
 
@@ -445,6 +439,7 @@ int scru128_generate(Scru128Generator *g, uint8_t *id_out);
  * @return Return value of `scru128_generate()`.
  * @note Provide a concrete implementation of `scru128_generate()` to enable
  * this function.
+ * @attention See `scru128_generate()` for the thread-safety consideration.
  */
 static inline int scru128_generate_string(Scru128Generator *g, char *str_out) {
   uint8_t id[SCRU128_LEN];
