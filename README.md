@@ -82,5 +82,5 @@ Licensed under the Apache License, Version 2.0.
 
 ## See also
 
-- [scru128.h](https://github.com/scru128/c/blob/main/scru128.h) for provided
-  functions
+- [Doxygen generated docs](https://scru128.github.io/c/scru128_8h.html) for
+  provided functions
