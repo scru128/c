@@ -9,7 +9,6 @@ static uint32_t get_random_uint32(void) {
   return n;
 }
 
-/** @warning This example is NOT thread-safe. */
 int scru128_generate(Scru128Generator *g, uint8_t *id_out) {
   struct timespec tp;
   int err = clock_gettime(CLOCK_REALTIME, &tp);

@@ -3,7 +3,6 @@
 #include <stdlib.h> // or <bsd/stdlib.h> on Linux with libbsd
 #include <time.h>
 
-/** @warning This example is NOT thread-safe. */
 int scru128_generate(Scru128Generator *g, uint8_t *id_out) {
   struct timespec tp;
   int err = clock_gettime(CLOCK_REALTIME, &tp);

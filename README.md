@@ -23,10 +23,10 @@ int main() {
   Scru128Generator g;
   scru128_generator_init(&g);
 
-  // generate a new identifier object
-  uint8_t x[SCRU128_LEN];
+  // generate a new identifier
+  uint8_t x[16];
   scru128_generate(&g, x);
-  char text[SCRU128_STR_LEN];
+  char text[SCRU128_STR_LEN]; // 26 bytes
   scru128_to_str(x, text);
   puts(text); // e.g. "036Z951MHJIKZIK2GSL81GR7L"
 
@@ -59,7 +59,6 @@ the BSD-like systems:
 #include <stdlib.h> // or <bsd/stdlib.h> on Linux with libbsd
 #include <time.h>
 
-/** @warning This example is NOT thread-safe. */
 int scru128_generate(Scru128Generator *g, uint8_t *id_out) {
   struct timespec tp;
   int err = clock_gettime(CLOCK_REALTIME, &tp);
@@ -81,5 +80,5 @@ Licensed under the Apache License, Version 2.0.
 
 ## See also
 
-- [Doxygen generated docs](https://scru128.github.io/c/scru128_8h.html) for
+- [API reference](https://scru128.github.io/c/scru128_8h.html) for the list of
   provided functions

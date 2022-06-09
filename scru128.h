@@ -178,21 +178,34 @@ static inline void scru128_copy(uint8_t *id_dst, const uint8_t *id_src) {
  * Creates a SCRU128 ID from a 25-digit string representation.
  *
  * @param id_out 16-byte byte array where the created SCRU128 ID is stored.
- * @param str Null-terminated ASCII character array containing the 25-digit
- * string representation.
+ * @param str Null-terminated character array containing the 25-digit string
+ * representation.
  * @return Zero on success or a non-zero integer if `str` is not a valid string
  * representation.
- * @note This function accepts ASCII-compatible byte arrays only.
  */
 static inline int scru128_from_str(uint8_t *id_out, const char *str) {
   uint8_t src[25];
   for (int_fast8_t i = 0; i < 25; i++) {
-    unsigned char c = str[i];
-    if (48 <= c && c <= 57) {
-      src[i] = c & 0x0f; // 0-9
-    } else if ((65 <= c && c <= 90) || (97 <= c && c <= 122)) {
-      src[i] = (c & 0x1f) + 9; // A-Za-z
-    } else {
+    char c = str[i];
+    // clang-format off
+    src[i] = (  c == '0' ?  0 : c == '1' ?  1 : c == '2' ?  2 : c == '3' ?  3
+              : c == '4' ?  4 : c == '5' ?  5 : c == '6' ?  6 : c == '7' ?  7
+              : c == '8' ?  8 : c == '9' ?  9 : c == 'A' ? 10 : c == 'B' ? 11
+              : c == 'C' ? 12 : c == 'D' ? 13 : c == 'E' ? 14 : c == 'F' ? 15
+              : c == 'G' ? 16 : c == 'H' ? 17 : c == 'I' ? 18 : c == 'J' ? 19
+              : c == 'K' ? 20 : c == 'L' ? 21 : c == 'M' ? 22 : c == 'N' ? 23
+              : c == 'O' ? 24 : c == 'P' ? 25 : c == 'Q' ? 26 : c == 'R' ? 27
+              : c == 'S' ? 28 : c == 'T' ? 29 : c == 'U' ? 30 : c == 'V' ? 31
+              : c == 'W' ? 32 : c == 'X' ? 33 : c == 'Y' ? 34 : c == 'Z' ? 35
+              : c == 'a' ? 10 : c == 'b' ? 11 : c == 'c' ? 12 : c == 'd' ? 13
+              : c == 'e' ? 14 : c == 'f' ? 15 : c == 'g' ? 16 : c == 'h' ? 17
+              : c == 'i' ? 18 : c == 'j' ? 19 : c == 'k' ? 20 : c == 'l' ? 21
+              : c == 'm' ? 22 : c == 'n' ? 23 : c == 'o' ? 24 : c == 'p' ? 25
+              : c == 'q' ? 26 : c == 'r' ? 27 : c == 's' ? 28 : c == 't' ? 29
+              : c == 'u' ? 30 : c == 'v' ? 31 : c == 'w' ? 32 : c == 'x' ? 33
+              : c == 'y' ? 34 : c == 'z' ? 35 : 0xff);
+    // clang-format on
+    if (src[i] == 0xff) {
       return -1; // invalid digit
     }
   }
