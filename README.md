@@ -16,17 +16,18 @@ decentralized, globally unique time-ordered identifiers. SCRU128 is inspired by
 
 ```c
 #include "scru128.h"
+
 #include <stdio.h>
 
 int main() {
   Scru128Generator g;
-  scru128_initialize_generator(&g);
+  scru128_generator_init(&g);
 
-  // generate a new identifier object
-  Scru128Id x;
-  scru128_generate(&g, &x);
-  char text[26];
-  scru128_to_str(&x, text);
+  // generate a new identifier
+  uint8_t x[16];
+  scru128_generate(&g, x);
+  char text[SCRU128_STR_LEN]; // 26 bytes
+  scru128_to_str(x, text);
   puts(text); // e.g. "036Z951MHJIKZIK2GSL81GR7L"
 
   // generate a textual representation directly
@@ -44,35 +45,32 @@ See [SCRU128 Specification] for details.
 [ksuid]: https://github.com/segmentio/ksuid
 [scru128 specification]: https://github.com/scru128/spec
 
-## Build
+## Platform integration
 
-`scru128.h` and `scru128.c` currently do not include any platform-dependent code
-(they depend on `stdint.h` only) and thus platform-specific functions to access
-to the system clocks and random number generators have to be implemented
-separately. Define the following two functions in a separate source file and
-link it to `scru128.c` at build time. Examples are found in the [platform]
-directory.
+`scru128.h` does not provide a concrete implementation of `scru128_generate()`,
+so users have to implement it to enable high-level generator APIs (if necessary)
+by integrating the real-time clock and random number generator available in the
+system and the `scru128_generate_core()` function. Here is a quick example for
+the BSD-like systems:
 
 ```c
-/**
- * Returns the current unix time in milliseconds.
- *
- * @param out Location where the returned value is stored.
- * @return Zero on success or a non-zero integer on failure.
- */
-int scru128_get_msec_unixts(uint64_t *out);
+#include "scru128.h"
 
-/**
- * Returns a 32-bit random unsigned integer.
- *
- * @param out Location where the returned value is stored.
- * @return Zero on success or a non-zero integer on failure.
- */
-int scru128_get_random_uint32(uint32_t *out);
+#include <stdlib.h> // or <bsd/stdlib.h> on Linux with libbsd
+#include <time.h>
+
+int scru128_generate(Scru128Generator *g, uint8_t *id_out) {
+  struct timespec tp;
+  int err = clock_gettime(CLOCK_REALTIME, &tp);
+  if (err) {
+    return SCRU128_GENERATOR_STATUS_ERROR;
+  }
+  uint64_t timestamp = (uint64_t)tp.tv_sec * 1000 + tp.tv_nsec / 1000000;
+  return scru128_generate_core(g, id_out, timestamp, &arc4random);
+}
 ```
 
-Alternatively, you can specify the compiler flag `-DSCRU128_NO_GENERATOR` to
-build `scru128.c` without generator functionality.
+Find more examples in the [platform] directory.
 
 [platform]: https://github.com/scru128/c/tree/main/platform
 
@@ -82,5 +80,5 @@ Licensed under the Apache License, Version 2.0.
 
 ## See also
 
-- [Doxygen generated docs](https://scru128.github.io/c/scru128_8h.html) for
+- [API reference](https://scru128.github.io/c/scru128_8h.html) for the list of
   provided functions

@@ -1,18 +1,18 @@
+#include "scru128.h"
+
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
-
-#include "scru128.h"
 
 #define N_SAMPLES 100000
 static char samples[N_SAMPLES][32];
 
 void setup(void) {
   Scru128Generator g;
-  scru128_initialize_generator(&g);
+  scru128_generator_init(&g);
   for (int i = 0; i < N_SAMPLES; i++) {
-    int err = scru128_generate_string(&g, samples[i]);
-    assert(err == 0);
+    int status = scru128_generate_string(&g, samples[i]);
+    assert(status >= 0);
   }
 }
 
@@ -36,69 +36,18 @@ void test_order(void) {
 
 /** Encodes unique sortable tuple of timestamp and counters */
 void test_timestamp_and_counters(void) {
-  Scru128Id prev, curr;
-  scru128_from_str(&prev, samples[0]);
+  uint8_t prev[SCRU128_LEN], curr[SCRU128_LEN];
+  scru128_from_str(prev, samples[0]);
   for (int i = 1; i < N_SAMPLES; i++) {
-    scru128_from_str(&curr, samples[i]);
-    assert(scru128_timestamp(&prev) < scru128_timestamp(&curr) ||
-           (scru128_timestamp(&prev) == scru128_timestamp(&curr) &&
-            scru128_counter_hi(&prev) < scru128_counter_hi(&curr)) ||
-           (scru128_timestamp(&prev) == scru128_timestamp(&curr) &&
-            scru128_counter_hi(&prev) == scru128_counter_hi(&curr) &&
-            scru128_counter_lo(&prev) < scru128_counter_lo(&curr)));
-    prev = curr;
+    scru128_from_str(curr, samples[i]);
+    assert(scru128_timestamp(prev) < scru128_timestamp(curr) ||
+           (scru128_timestamp(prev) == scru128_timestamp(curr) &&
+            scru128_counter_hi(prev) < scru128_counter_hi(curr)) ||
+           (scru128_timestamp(prev) == scru128_timestamp(curr) &&
+            scru128_counter_hi(prev) == scru128_counter_hi(curr) &&
+            scru128_counter_lo(prev) < scru128_counter_lo(curr)));
+    memcpy(curr, prev, SCRU128_LEN);
   }
-}
-
-/** Generates increasing IDs even with decreasing or constant timestamp */
-void test_decreasing_or_constant_timestamp(void) {
-  Scru128Generator g;
-  Scru128Id prev, curr;
-
-  uint64_t ts = 0x0123456789ab;
-  scru128_initialize_generator(&g);
-  assert(scru128_generator_last_status(&g) ==
-         SCRU128_GENERATOR_STATUS_NOT_EXECUTED);
-
-  scru128_generate_core(&g, &prev, ts);
-  assert(scru128_generator_last_status(&g) ==
-         SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
-  assert(scru128_timestamp(&prev) == ts);
-
-  for (uint64_t i = 0; i < 100000; i++) {
-    scru128_generate_core(&g, &curr, ts - (i < 9998 ? i : 9998));
-    assert(scru128_generator_last_status(&g) ==
-               SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
-           scru128_generator_last_status(&g) ==
-               SCRU128_GENERATOR_STATUS_COUNTER_HI_INC ||
-           scru128_generator_last_status(&g) ==
-               SCRU128_GENERATOR_STATUS_TIMESTAMP_INC);
-    assert(scru128_compare(&prev, &curr) < 0);
-    prev = curr;
-  }
-  assert(scru128_timestamp(&prev) >= ts);
-}
-
-/** Breaks increasing order of IDs if timestamp moves backward a lot */
-void test_timestamp_rollback(void) {
-  Scru128Generator g;
-  Scru128Id prev, curr;
-
-  uint64_t ts = 0x0123456789ab;
-  scru128_initialize_generator(&g);
-  assert(scru128_generator_last_status(&g) ==
-         SCRU128_GENERATOR_STATUS_NOT_EXECUTED);
-
-  scru128_generate_core(&g, &prev, ts);
-  assert(scru128_generator_last_status(&g) ==
-         SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
-  assert(scru128_timestamp(&prev) == ts);
-
-  scru128_generate_core(&g, &curr, ts - 10000);
-  assert(scru128_generator_last_status(&g) ==
-         SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK);
-  assert(scru128_compare(&prev, &curr) > 0);
-  assert(scru128_timestamp(&curr) == ts - 10000);
 }
 
 #define run_test(NAME)                                                         \
@@ -113,7 +62,5 @@ int main(void) {
   run_test(test_format);
   run_test(test_order);
   run_test(test_timestamp_and_counters);
-  run_test(test_decreasing_or_constant_timestamp);
-  run_test(test_timestamp_rollback);
   return 0;
 }

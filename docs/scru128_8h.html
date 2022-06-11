@@ -41,8 +41,8 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
-<a href="#typedef-members">Typedefs</a> &#124;
-<a href="#enum-members">Enumerations</a>  </div>
+<a href="#define-members">Macros</a> &#124;
+<a href="#typedef-members">Typedefs</a>  </div>
   <div class="headertitle"><div class="title">scru128.h File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -55,102 +55,103 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_scru128_id.html">Scru128Id</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a SCRU128 ID and provides various converters and comparison operators.  <a href="struct_scru128_id.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_scru128_generator.html">Scru128Generator</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a SCRU128 ID generator that encapsulates the monotonic counter and other internal states.  <a href="struct_scru128_generator.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a7ce9fec983a215522c45cbfc85b1ca76"><td class="memItemLeft" align="right" valign="top"><a id="a7ce9fec983a215522c45cbfc85b1ca76" name="a7ce9fec983a215522c45cbfc85b1ca76"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>SCRU128_LEN</b>&#160;&#160;&#160;(16)</td></tr>
+<tr class="memdesc:a7ce9fec983a215522c45cbfc85b1ca76"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size in bytes of a SCRU128 ID in the binary representation (16 bytes). <br /></td></tr>
+<tr class="separator:a7ce9fec983a215522c45cbfc85b1ca76"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9daa0fa95664c7dc723930e78b05bf6"><td class="memItemLeft" align="right" valign="top"><a id="aa9daa0fa95664c7dc723930e78b05bf6" name="aa9daa0fa95664c7dc723930e78b05bf6"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>SCRU128_STR_LEN</b>&#160;&#160;&#160;(26)</td></tr>
+<tr class="memdesc:aa9daa0fa95664c7dc723930e78b05bf6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size in bytes of a SCRU128 ID in the string representation (25 digits + NUL). <br /></td></tr>
+<tr class="separator:aa9daa0fa95664c7dc723930e78b05bf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Status codes returned by generator functions</div></td></tr>
+<tr class="memitem:ad447785d26cd067a1ec71ca0ed2c0250"><td class="memItemLeft" align="right" valign="top"><a id="ad447785d26cd067a1ec71ca0ed2c0250" name="ad447785d26cd067a1ec71ca0ed2c0250"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP</b>&#160;&#160;&#160;(1)</td></tr>
+<tr class="memdesc:ad447785d26cd067a1ec71ca0ed2c0250"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates that the latest <code>timestamp</code> was used because it was greater than the previous one. <br /></td></tr>
+<tr class="separator:ad447785d26cd067a1ec71ca0ed2c0250"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5fe1743a1e07a52cc883e38b0abf5685"><td class="memItemLeft" align="right" valign="top"><a id="a5fe1743a1e07a52cc883e38b0abf5685" name="a5fe1743a1e07a52cc883e38b0abf5685"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>SCRU128_GENERATOR_STATUS_COUNTER_LO_INC</b>&#160;&#160;&#160;(2)</td></tr>
+<tr class="memdesc:a5fe1743a1e07a52cc883e38b0abf5685"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates that <code>counter_lo</code> was incremented because the latest <code>timestamp</code> was no greater than the previous one. <br /></td></tr>
+<tr class="separator:a5fe1743a1e07a52cc883e38b0abf5685"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ce3c2f63987662bb500d36cce7bc3ef"><td class="memItemLeft" align="right" valign="top"><a id="a8ce3c2f63987662bb500d36cce7bc3ef" name="a8ce3c2f63987662bb500d36cce7bc3ef"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>SCRU128_GENERATOR_STATUS_COUNTER_HI_INC</b>&#160;&#160;&#160;(3)</td></tr>
+<tr class="memdesc:a8ce3c2f63987662bb500d36cce7bc3ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates that <code>counter_hi</code> was incremented because <code>counter_lo</code> reached its maximum value. <br /></td></tr>
+<tr class="separator:a8ce3c2f63987662bb500d36cce7bc3ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54b7a0be0765e68d1632825c075c0945"><td class="memItemLeft" align="right" valign="top"><a id="a54b7a0be0765e68d1632825c075c0945" name="a54b7a0be0765e68d1632825c075c0945"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>SCRU128_GENERATOR_STATUS_TIMESTAMP_INC</b>&#160;&#160;&#160;(4)</td></tr>
+<tr class="memdesc:a54b7a0be0765e68d1632825c075c0945"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates that the previous <code>timestamp</code> was incremented because <code>counter_hi</code> reached its maximum value. <br /></td></tr>
+<tr class="separator:a54b7a0be0765e68d1632825c075c0945"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09e9b3a3cab089d543af0b01079b800e"><td class="memItemLeft" align="right" valign="top"><a id="a09e9b3a3cab089d543af0b01079b800e" name="a09e9b3a3cab089d543af0b01079b800e"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK</b>&#160;&#160;&#160;(5)</td></tr>
+<tr class="memdesc:a09e9b3a3cab089d543af0b01079b800e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates that the monotonic order of generated IDs was broken because the latest <code>timestamp</code> was less than the previous one by ten seconds or more. <br /></td></tr>
+<tr class="separator:a09e9b3a3cab089d543af0b01079b800e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a663030cd94ef3f3bb0d19beb090009d4"><td class="memItemLeft" align="right" valign="top"><a id="a663030cd94ef3f3bb0d19beb090009d4" name="a663030cd94ef3f3bb0d19beb090009d4"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>SCRU128_GENERATOR_STATUS_ERROR</b>&#160;&#160;&#160;(-1)</td></tr>
+<tr class="memdesc:a663030cd94ef3f3bb0d19beb090009d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates that the previous generation failed. <br /></td></tr>
+<tr class="separator:a663030cd94ef3f3bb0d19beb090009d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:ae73228b00fd19019f93b7128680f6fb8"><td class="memItemLeft" align="right" valign="top"><a id="ae73228b00fd19019f93b7128680f6fb8" name="ae73228b00fd19019f93b7128680f6fb8"></a>
-typedef struct <a class="el" href="struct_scru128_id.html">Scru128Id</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Scru128Id</b></td></tr>
-<tr class="memdesc:ae73228b00fd19019f93b7128680f6fb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a SCRU128 ID and provides various converters and comparison operators. <br /></td></tr>
-<tr class="separator:ae73228b00fd19019f93b7128680f6fb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7799d965340fa8789a897c49f85654ac"><td class="memItemLeft" align="right" valign="top"><a id="a7799d965340fa8789a897c49f85654ac" name="a7799d965340fa8789a897c49f85654ac"></a>
-typedef enum <a class="el" href="scru128_8h.html#a04ec21ec733e1300e665a40be76e4cbf">Scru128GeneratorStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Scru128GeneratorStatus</b></td></tr>
-<tr class="memdesc:a7799d965340fa8789a897c49f85654ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Status code returned by <code><a class="el" href="scru128_8h.html#ac6b2eafdd891bc35b6f3613185780ef4" title="Returns a Scru128GeneratorStatus code that indicates the internal state involved in the last generati...">scru128_generator_last_status()</a></code> function. <br /></td></tr>
-<tr class="separator:a7799d965340fa8789a897c49f85654ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab64da465f3c4c07d7af6b04b7dd19c6b"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct_scru128_generator.html">Scru128Generator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#ab64da465f3c4c07d7af6b04b7dd19c6b">Scru128Generator</a></td></tr>
 <tr class="memdesc:ab64da465f3c4c07d7af6b04b7dd19c6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a SCRU128 ID generator that encapsulates the monotonic counter and other internal states.  <a href="scru128_8h.html#ab64da465f3c4c07d7af6b04b7dd19c6b">More...</a><br /></td></tr>
 <tr class="separator:ab64da465f3c4c07d7af6b04b7dd19c6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
-Enumerations</h2></td></tr>
-<tr class="memitem:a04ec21ec733e1300e665a40be76e4cbf"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a04ec21ec733e1300e665a40be76e4cbf">Scru128GeneratorStatus</a> { <br />
-&#160;&#160;<a class="el" href="scru128_8h.html#a04ec21ec733e1300e665a40be76e4cbfaf9493f1321b80cbda5535daf98b1c7ec">SCRU128_GENERATOR_STATUS_NOT_EXECUTED</a> = 0
-, <a class="el" href="scru128_8h.html#a04ec21ec733e1300e665a40be76e4cbfab7bb2f62c3ef052bfe18eb0145c02d34">SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP</a>
-, <a class="el" href="scru128_8h.html#a04ec21ec733e1300e665a40be76e4cbfaacfcdb271b2b02e03b26ddd5456e5d8e">SCRU128_GENERATOR_STATUS_COUNTER_LO_INC</a>
-, <a class="el" href="scru128_8h.html#a04ec21ec733e1300e665a40be76e4cbfa4711e9482212a3e8e20dfc7432e4573d">SCRU128_GENERATOR_STATUS_COUNTER_HI_INC</a>
-, <br />
-&#160;&#160;<a class="el" href="scru128_8h.html#a04ec21ec733e1300e665a40be76e4cbfa8d549ce55ff70fd6dead7a548536e060">SCRU128_GENERATOR_STATUS_TIMESTAMP_INC</a>
-, <a class="el" href="scru128_8h.html#a04ec21ec733e1300e665a40be76e4cbfa93157b81db9fe38d9a2d1ca9ba59463d">SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK</a>
-, <a class="el" href="scru128_8h.html#a04ec21ec733e1300e665a40be76e4cbfa82c98ec824d723f605b91c8c638f32cb">SCRU128_GENERATOR_STATUS_ERROR</a>
-<br />
- }</td></tr>
-<tr class="memdesc:a04ec21ec733e1300e665a40be76e4cbf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Status code returned by <code><a class="el" href="scru128_8h.html#ac6b2eafdd891bc35b6f3613185780ef4" title="Returns a Scru128GeneratorStatus code that indicates the internal state involved in the last generati...">scru128_generator_last_status()</a></code> function.  <a href="scru128_8h.html#a04ec21ec733e1300e665a40be76e4cbf">More...</a><br /></td></tr>
-<tr class="separator:a04ec21ec733e1300e665a40be76e4cbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Identifier-related functions</div></td></tr>
-<tr class="memitem:a41c72081dea099baed70fcebd4623232"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a41c72081dea099baed70fcebd4623232">scru128_from_fields</a> (<a class="el" href="struct_scru128_id.html">Scru128Id</a> *out, uint64_t timestamp, uint32_t counter_hi, uint32_t counter_lo, uint32_t entropy)</td></tr>
-<tr class="memdesc:a41c72081dea099baed70fcebd4623232"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a SCRU128 ID object from field values.  <a href="scru128_8h.html#a41c72081dea099baed70fcebd4623232">More...</a><br /></td></tr>
-<tr class="separator:a41c72081dea099baed70fcebd4623232"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:add93eb728cf63c1030147be0cce29214"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#add93eb728cf63c1030147be0cce29214">scru128_from_bytes</a> (<a class="el" href="struct_scru128_id.html">Scru128Id</a> *out, const uint8_t *bytes)</td></tr>
-<tr class="memdesc:add93eb728cf63c1030147be0cce29214"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a SCRU128 ID object from a byte array that represents a 128-bit unsigned integer.  <a href="scru128_8h.html#add93eb728cf63c1030147be0cce29214">More...</a><br /></td></tr>
-<tr class="separator:add93eb728cf63c1030147be0cce29214"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a51ed6a296a7bef6c8a7e5ee178b7e413"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a51ed6a296a7bef6c8a7e5ee178b7e413">scru128_from_str</a> (<a class="el" href="struct_scru128_id.html">Scru128Id</a> *out, const char *text)</td></tr>
-<tr class="memdesc:a51ed6a296a7bef6c8a7e5ee178b7e413"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a SCRU128 ID object from a 25-digit string representation.  <a href="scru128_8h.html#a51ed6a296a7bef6c8a7e5ee178b7e413">More...</a><br /></td></tr>
-<tr class="separator:a51ed6a296a7bef6c8a7e5ee178b7e413"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa28933e17cef79519864b92def67269e"><td class="memItemLeft" align="right" valign="top"><a id="aa28933e17cef79519864b92def67269e" name="aa28933e17cef79519864b92def67269e"></a>
-static uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_timestamp</b> (const <a class="el" href="struct_scru128_id.html">Scru128Id</a> *id)</td></tr>
-<tr class="memdesc:aa28933e17cef79519864b92def67269e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the 48-bit <code>timestamp</code> field value of a SCRU128 ID. <br /></td></tr>
-<tr class="separator:aa28933e17cef79519864b92def67269e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af5961dd8a53b556d65d07ace794cfe8e"><td class="memItemLeft" align="right" valign="top"><a id="af5961dd8a53b556d65d07ace794cfe8e" name="af5961dd8a53b556d65d07ace794cfe8e"></a>
-static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_counter_hi</b> (const <a class="el" href="struct_scru128_id.html">Scru128Id</a> *id)</td></tr>
-<tr class="memdesc:af5961dd8a53b556d65d07ace794cfe8e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the 24-bit <code>counter_hi</code> field value of a SCRU128 ID. <br /></td></tr>
-<tr class="separator:af5961dd8a53b556d65d07ace794cfe8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:add5291d8633cd8a2da71ecf6013e1f43"><td class="memItemLeft" align="right" valign="top"><a id="add5291d8633cd8a2da71ecf6013e1f43" name="add5291d8633cd8a2da71ecf6013e1f43"></a>
-static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_counter_lo</b> (const <a class="el" href="struct_scru128_id.html">Scru128Id</a> *id)</td></tr>
-<tr class="memdesc:add5291d8633cd8a2da71ecf6013e1f43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the 24-bit <code>counter_lo</code> field value of a SCRU128 ID. <br /></td></tr>
-<tr class="separator:add5291d8633cd8a2da71ecf6013e1f43"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a87fe3beeff46fbe4d685872db9b73a02"><td class="memItemLeft" align="right" valign="top"><a id="a87fe3beeff46fbe4d685872db9b73a02" name="a87fe3beeff46fbe4d685872db9b73a02"></a>
-static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_entropy</b> (const <a class="el" href="struct_scru128_id.html">Scru128Id</a> *id)</td></tr>
-<tr class="memdesc:a87fe3beeff46fbe4d685872db9b73a02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the 32-bit <code>entropy</code> field value of a SCRU128 ID. <br /></td></tr>
-<tr class="separator:a87fe3beeff46fbe4d685872db9b73a02"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a54d191b27448be2492d8e10134c08244"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a54d191b27448be2492d8e10134c08244">scru128_to_bytes</a> (const <a class="el" href="struct_scru128_id.html">Scru128Id</a> *id, uint8_t *out)</td></tr>
-<tr class="memdesc:a54d191b27448be2492d8e10134c08244"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a byte array containing the 128-bit unsigned integer representation of a SCRU128 ID.  <a href="scru128_8h.html#a54d191b27448be2492d8e10134c08244">More...</a><br /></td></tr>
-<tr class="separator:a54d191b27448be2492d8e10134c08244"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a71e6a763e65433ffd5127608c9428111"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a71e6a763e65433ffd5127608c9428111">scru128_to_str</a> (const <a class="el" href="struct_scru128_id.html">Scru128Id</a> *id, char *out)</td></tr>
-<tr class="memdesc:a71e6a763e65433ffd5127608c9428111"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the 25-digit canonical string representation of a SCRU128 ID.  <a href="scru128_8h.html#a71e6a763e65433ffd5127608c9428111">More...</a><br /></td></tr>
-<tr class="separator:a71e6a763e65433ffd5127608c9428111"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afccba6cd4d4c2902771e1d10ac162496"><td class="memItemLeft" align="right" valign="top"><a id="afccba6cd4d4c2902771e1d10ac162496" name="afccba6cd4d4c2902771e1d10ac162496"></a>
-static int&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_compare</b> (const <a class="el" href="struct_scru128_id.html">Scru128Id</a> *lhs, const <a class="el" href="struct_scru128_id.html">Scru128Id</a> *rhs)</td></tr>
-<tr class="memdesc:afccba6cd4d4c2902771e1d10ac162496"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a negative integer, zero, or positive integer if <code>lhs</code> is less than, equal to, or greater than <code>rhs</code>, respectively. <br /></td></tr>
-<tr class="separator:afccba6cd4d4c2902771e1d10ac162496"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupText"><p >This library represents a binary SCRU128 ID as a 16-byte <code>uint8_t</code> array containing a 128-bit unsigned integer in the big-endian (network) byte order. </p>
+</div></td></tr>
+<tr class="memitem:a12545c4b85fa1a769fae51d5a2fc1ca4"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a12545c4b85fa1a769fae51d5a2fc1ca4">scru128_from_fields</a> (uint8_t *id_out, uint64_t timestamp, uint32_t counter_hi, uint32_t counter_lo, uint32_t entropy)</td></tr>
+<tr class="memdesc:a12545c4b85fa1a769fae51d5a2fc1ca4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a SCRU128 ID from field values.  <a href="scru128_8h.html#a12545c4b85fa1a769fae51d5a2fc1ca4">More...</a><br /></td></tr>
+<tr class="separator:a12545c4b85fa1a769fae51d5a2fc1ca4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b633a39924a54f4c75f7d91d8263b5c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a5b633a39924a54f4c75f7d91d8263b5c">scru128_copy</a> (uint8_t *id_dst, const uint8_t *id_src)</td></tr>
+<tr class="memdesc:a5b633a39924a54f4c75f7d91d8263b5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies a SCRU128 ID from <code>id_src</code> to <code>id_dst</code>.  <a href="scru128_8h.html#a5b633a39924a54f4c75f7d91d8263b5c">More...</a><br /></td></tr>
+<tr class="separator:a5b633a39924a54f4c75f7d91d8263b5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa0b1f1555c5b18ba9306dc498b1a081e"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#aa0b1f1555c5b18ba9306dc498b1a081e">scru128_from_str</a> (uint8_t *id_out, const char *str)</td></tr>
+<tr class="memdesc:aa0b1f1555c5b18ba9306dc498b1a081e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a SCRU128 ID from a 25-digit string representation.  <a href="scru128_8h.html#aa0b1f1555c5b18ba9306dc498b1a081e">More...</a><br /></td></tr>
+<tr class="separator:aa0b1f1555c5b18ba9306dc498b1a081e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac53b03a0dad3cf0b95737a7dd0a13ac3"><td class="memItemLeft" align="right" valign="top">static uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#ac53b03a0dad3cf0b95737a7dd0a13ac3">scru128_timestamp</a> (const uint8_t *id)</td></tr>
+<tr class="memdesc:ac53b03a0dad3cf0b95737a7dd0a13ac3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the 48-bit <code>timestamp</code> field value of a SCRU128 ID.  <a href="scru128_8h.html#ac53b03a0dad3cf0b95737a7dd0a13ac3">More...</a><br /></td></tr>
+<tr class="separator:ac53b03a0dad3cf0b95737a7dd0a13ac3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54d4f99210c175a9c5cac7d31318de6e"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a54d4f99210c175a9c5cac7d31318de6e">scru128_counter_hi</a> (const uint8_t *id)</td></tr>
+<tr class="memdesc:a54d4f99210c175a9c5cac7d31318de6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the 24-bit <code>counter_hi</code> field value of a SCRU128 ID.  <a href="scru128_8h.html#a54d4f99210c175a9c5cac7d31318de6e">More...</a><br /></td></tr>
+<tr class="separator:a54d4f99210c175a9c5cac7d31318de6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2a48b394cd3b35126ecb348053274da"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#ab2a48b394cd3b35126ecb348053274da">scru128_counter_lo</a> (const uint8_t *id)</td></tr>
+<tr class="memdesc:ab2a48b394cd3b35126ecb348053274da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the 24-bit <code>counter_lo</code> field value of a SCRU128 ID.  <a href="scru128_8h.html#ab2a48b394cd3b35126ecb348053274da">More...</a><br /></td></tr>
+<tr class="separator:ab2a48b394cd3b35126ecb348053274da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a361acb1706952115481e4febc8f2d5a1"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a361acb1706952115481e4febc8f2d5a1">scru128_entropy</a> (const uint8_t *id)</td></tr>
+<tr class="memdesc:a361acb1706952115481e4febc8f2d5a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the 32-bit <code>entropy</code> field value of a SCRU128 ID.  <a href="scru128_8h.html#a361acb1706952115481e4febc8f2d5a1">More...</a><br /></td></tr>
+<tr class="separator:a361acb1706952115481e4febc8f2d5a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba6d3176efe82426bb85e198601223a3"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#aba6d3176efe82426bb85e198601223a3">scru128_to_str</a> (const uint8_t *id, char *str_out)</td></tr>
+<tr class="memdesc:aba6d3176efe82426bb85e198601223a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the 25-digit canonical string representation of a SCRU128 ID.  <a href="scru128_8h.html#aba6d3176efe82426bb85e198601223a3">More...</a><br /></td></tr>
+<tr class="separator:aba6d3176efe82426bb85e198601223a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a511ea08612d6603d74f843b0cb8b799b"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a511ea08612d6603d74f843b0cb8b799b">scru128_compare</a> (const uint8_t *id_lft, const uint8_t *id_rgt)</td></tr>
+<tr class="memdesc:a511ea08612d6603d74f843b0cb8b799b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a negative integer, zero, or positive integer if <code>id_lft</code> is less than, equal to, or greater than <code>id_rgt</code>, respectively.  <a href="scru128_8h.html#a511ea08612d6603d74f843b0cb8b799b">More...</a><br /></td></tr>
+<tr class="separator:a511ea08612d6603d74f843b0cb8b799b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Generator-related functions</div></td></tr>
-<tr class="memitem:a51408a063f653d25ca8654f842b35ac0"><td class="memItemLeft" align="right" valign="top"><a id="a51408a063f653d25ca8654f842b35ac0" name="a51408a063f653d25ca8654f842b35ac0"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_initialize_generator</b> (<a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *g)</td></tr>
-<tr class="memdesc:a51408a063f653d25ca8654f842b35ac0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a generator struct <code>g</code>. <br /></td></tr>
-<tr class="separator:a51408a063f653d25ca8654f842b35ac0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac6b2eafdd891bc35b6f3613185780ef4"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="scru128_8h.html#a04ec21ec733e1300e665a40be76e4cbf">Scru128GeneratorStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#ac6b2eafdd891bc35b6f3613185780ef4">scru128_generator_last_status</a> (<a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *g)</td></tr>
-<tr class="memdesc:ac6b2eafdd891bc35b6f3613185780ef4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a <code>Scru128GeneratorStatus</code> code that indicates the internal state involved in the last generation of ID.  <a href="scru128_8h.html#ac6b2eafdd891bc35b6f3613185780ef4">More...</a><br /></td></tr>
-<tr class="separator:ac6b2eafdd891bc35b6f3613185780ef4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58950ffaebe81a896265036bdabc9d30"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a58950ffaebe81a896265036bdabc9d30">scru128_generate_core</a> (<a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *g, <a class="el" href="struct_scru128_id.html">Scru128Id</a> *out, uint64_t timestamp)</td></tr>
-<tr class="memdesc:a58950ffaebe81a896265036bdabc9d30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a new SCRU128 ID with the <code>timestamp</code> passed using the generator <code>g</code>.  <a href="scru128_8h.html#a58950ffaebe81a896265036bdabc9d30">More...</a><br /></td></tr>
-<tr class="separator:a58950ffaebe81a896265036bdabc9d30"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad2603535abc615d96cbc17f20c20e894"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#ad2603535abc615d96cbc17f20c20e894">scru128_generate</a> (<a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *g, <a class="el" href="struct_scru128_id.html">Scru128Id</a> *out)</td></tr>
-<tr class="memdesc:ad2603535abc615d96cbc17f20c20e894"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a new SCRU128 ID using the generator <code>g</code>.  <a href="scru128_8h.html#ad2603535abc615d96cbc17f20c20e894">More...</a><br /></td></tr>
-<tr class="separator:ad2603535abc615d96cbc17f20c20e894"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a28db60fa0f71c034729b7523e4ee1422"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a28db60fa0f71c034729b7523e4ee1422">scru128_generate_string</a> (<a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *g, char *out)</td></tr>
-<tr class="memdesc:a28db60fa0f71c034729b7523e4ee1422"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a new SCRU128 ID encoded in the 25-digit canonical string representation using the generator <code>g</code>.  <a href="scru128_8h.html#a28db60fa0f71c034729b7523e4ee1422">More...</a><br /></td></tr>
-<tr class="separator:a28db60fa0f71c034729b7523e4ee1422"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae9199458267b62b00d66c439313b59da"><td class="memItemLeft" align="right" valign="top"><a id="ae9199458267b62b00d66c439313b59da" name="ae9199458267b62b00d66c439313b59da"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_generator_init</b> (<a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *g)</td></tr>
+<tr class="memdesc:ae9199458267b62b00d66c439313b59da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a generator struct <code>g</code>. <br /></td></tr>
+<tr class="separator:ae9199458267b62b00d66c439313b59da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a340b6579f50b74f8b135fb4f9beef648"><td class="memItemLeft" align="right" valign="top">static int8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a340b6579f50b74f8b135fb4f9beef648">scru128_generate_core</a> (<a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *g, uint8_t *id_out, uint64_t timestamp, uint32_t(*arc4random)(void))</td></tr>
+<tr class="memdesc:a340b6579f50b74f8b135fb4f9beef648"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a new SCRU128 ID with the given <code>timestamp</code> and random number generator.  <a href="scru128_8h.html#a340b6579f50b74f8b135fb4f9beef648">More...</a><br /></td></tr>
+<tr class="separator:a340b6579f50b74f8b135fb4f9beef648"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">High-level generator APIs that require platform integration</div></td></tr>
+<tr class="memitem:a03dac9a0d491fb675ff74e42ca52e6e6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a03dac9a0d491fb675ff74e42ca52e6e6">scru128_generate</a> (<a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *g, uint8_t *id_out)</td></tr>
+<tr class="memdesc:a03dac9a0d491fb675ff74e42ca52e6e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a new SCRU128 ID.  <a href="scru128_8h.html#a03dac9a0d491fb675ff74e42ca52e6e6">More...</a><br /></td></tr>
+<tr class="separator:a03dac9a0d491fb675ff74e42ca52e6e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a875cccf35abd0d4f8e4f3bdc5046e39a"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a875cccf35abd0d4f8e4f3bdc5046e39a">scru128_generate_string</a> (<a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *g, char *str_out)</td></tr>
+<tr class="memdesc:a875cccf35abd0d4f8e4f3bdc5046e39a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a new SCRU128 ID encoded in the 25-digit canonical string representation.  <a href="scru128_8h.html#a875cccf35abd0d4f8e4f3bdc5046e39a">More...</a><br /></td></tr>
+<tr class="separator:a875cccf35abd0d4f8e4f3bdc5046e39a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >SCRU128: Sortable, Clock and Random number-based Unique identifier. </p>
-<dl class="section version"><dt>Version</dt><dd>v0.2.4 </dd></dl>
+<dl class="section version"><dt>Version</dt><dd>v0.3.0 </dd></dl>
 <dl class="section copyright"><dt>Copyright</dt><dd>Licensed under the Apache License, Version 2.0 </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a href="https://github.com/scru128/c">https://github.com/scru128/c</a> </dd></dl>
 </div><h2 class="groupheader">Typedef Documentation</h2>
@@ -167,46 +168,13 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_initia
 </div><div class="memdoc">
 
 <p>Represents a SCRU128 ID generator that encapsulates the monotonic counter and other internal states. </p>
-<p >A new generator must be initialized by <code><a class="el" href="scru128_8h.html#a51408a063f653d25ca8654f842b35ac0" title="Initializes a generator struct g.">scru128_initialize_generator()</a></code> before use. </p>
-
-</div>
-</div>
-<h2 class="groupheader">Enumeration Type Documentation</h2>
-<a id="a04ec21ec733e1300e665a40be76e4cbf" name="a04ec21ec733e1300e665a40be76e4cbf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a04ec21ec733e1300e665a40be76e4cbf">&#9670;&nbsp;</a></span>Scru128GeneratorStatus</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="scru128_8h.html#a04ec21ec733e1300e665a40be76e4cbf">Scru128GeneratorStatus</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Status code returned by <code><a class="el" href="scru128_8h.html#ac6b2eafdd891bc35b6f3613185780ef4" title="Returns a Scru128GeneratorStatus code that indicates the internal state involved in the last generati...">scru128_generator_last_status()</a></code> function. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a04ec21ec733e1300e665a40be76e4cbfaf9493f1321b80cbda5535daf98b1c7ec" name="a04ec21ec733e1300e665a40be76e4cbfaf9493f1321b80cbda5535daf98b1c7ec"></a>SCRU128_GENERATOR_STATUS_NOT_EXECUTED&#160;</td><td class="fielddoc"><p >Indicates that the generator has yet to generate an ID. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a04ec21ec733e1300e665a40be76e4cbfab7bb2f62c3ef052bfe18eb0145c02d34" name="a04ec21ec733e1300e665a40be76e4cbfab7bb2f62c3ef052bfe18eb0145c02d34"></a>SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP&#160;</td><td class="fielddoc"><p >Indicates that the latest <code>timestamp</code> was used because it was greater than the previous one. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a04ec21ec733e1300e665a40be76e4cbfaacfcdb271b2b02e03b26ddd5456e5d8e" name="a04ec21ec733e1300e665a40be76e4cbfaacfcdb271b2b02e03b26ddd5456e5d8e"></a>SCRU128_GENERATOR_STATUS_COUNTER_LO_INC&#160;</td><td class="fielddoc"><p >Indicates that <code>counter_lo</code> was incremented because the latest <code>timestamp</code> was no greater than the previous one. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a04ec21ec733e1300e665a40be76e4cbfa4711e9482212a3e8e20dfc7432e4573d" name="a04ec21ec733e1300e665a40be76e4cbfa4711e9482212a3e8e20dfc7432e4573d"></a>SCRU128_GENERATOR_STATUS_COUNTER_HI_INC&#160;</td><td class="fielddoc"><p >Indicates that <code>counter_hi</code> was incremented because <code>counter_lo</code> reached its maximum value. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a04ec21ec733e1300e665a40be76e4cbfa8d549ce55ff70fd6dead7a548536e060" name="a04ec21ec733e1300e665a40be76e4cbfa8d549ce55ff70fd6dead7a548536e060"></a>SCRU128_GENERATOR_STATUS_TIMESTAMP_INC&#160;</td><td class="fielddoc"><p >Indicates that the previous <code>timestamp</code> was incremented because <code>counter_hi</code> reached its maximum value. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a04ec21ec733e1300e665a40be76e4cbfa93157b81db9fe38d9a2d1ca9ba59463d" name="a04ec21ec733e1300e665a40be76e4cbfa93157b81db9fe38d9a2d1ca9ba59463d"></a>SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK&#160;</td><td class="fielddoc"><p >Indicates that the monotonic order of generated IDs was broken because the latest <code>timestamp</code> was less than the previous one by ten seconds or more. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a04ec21ec733e1300e665a40be76e4cbfa82c98ec824d723f605b91c8c638f32cb" name="a04ec21ec733e1300e665a40be76e4cbfa82c98ec824d723f605b91c8c638f32cb"></a>SCRU128_GENERATOR_STATUS_ERROR&#160;</td><td class="fielddoc"><p >Indicates that the previous generation failed. </p>
-</td></tr>
-</table>
+<p >A new generator must be initialized by <code><a class="el" href="scru128_8h.html#ae9199458267b62b00d66c439313b59da" title="Initializes a generator struct g.">scru128_generator_init()</a></code> before use. </p>
 
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="add93eb728cf63c1030147be0cce29214" name="add93eb728cf63c1030147be0cce29214"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#add93eb728cf63c1030147be0cce29214">&#9670;&nbsp;</a></span>scru128_from_bytes()</h2>
+<a id="a511ea08612d6603d74f843b0cb8b799b" name="a511ea08612d6603d74f843b0cb8b799b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a511ea08612d6603d74f843b0cb8b799b">&#9670;&nbsp;</a></span>scru128_compare()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -215,16 +183,16 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_initia
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static int scru128_from_bytes </td>
+          <td class="memname">static int scru128_compare </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="struct_scru128_id.html">Scru128Id</a> *&#160;</td>
-          <td class="paramname"><em>out</em>, </td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>id_lft</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const uint8_t *&#160;</td>
-          <td class="paramname"><em>bytes</em>&#160;</td>
+          <td class="paramname"><em>id_rgt</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -239,20 +207,166 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_initia
 </table>
 </div><div class="memdoc">
 
-<p>Creates a SCRU128 ID object from a byte array that represents a 128-bit unsigned integer. </p>
+<p>Returns a negative integer, zero, or positive integer if <code>id_lft</code> is less than, equal to, or greater than <code>id_rgt</code>, respectively. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">out</td><td>Location where the new object is stored. </td></tr>
-    <tr><td class="paramname">bytes</td><td>16-byte byte array that represents a 128-bit unsigned integer in the big-endian (network) byte order. </td></tr>
+    <tr><td class="paramname">id_lft</td><td>16-byte big-endian byte array that represents a SCRU128 ID. </td></tr>
+    <tr><td class="paramname">id_rgt</td><td>16-byte big-endian byte array that represents a SCRU128 ID. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Zero on success or a non-zero integer on failure. </dd></dl>
 
 </div>
 </div>
-<a id="a41c72081dea099baed70fcebd4623232" name="a41c72081dea099baed70fcebd4623232"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a41c72081dea099baed70fcebd4623232">&#9670;&nbsp;</a></span>scru128_from_fields()</h2>
+<a id="a5b633a39924a54f4c75f7d91d8263b5c" name="a5b633a39924a54f4c75f7d91d8263b5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b633a39924a54f4c75f7d91d8263b5c">&#9670;&nbsp;</a></span>scru128_copy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void scru128_copy </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>id_dst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>id_src</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Copies a SCRU128 ID from <code>id_src</code> to <code>id_dst</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">id_dst</td><td>16-byte byte array where the copied SCRU128 ID is stored. </td></tr>
+    <tr><td class="paramname">id_src</td><td>16-byte big-endian byte array that represents a SCRU128 ID. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a54d4f99210c175a9c5cac7d31318de6e" name="a54d4f99210c175a9c5cac7d31318de6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a54d4f99210c175a9c5cac7d31318de6e">&#9670;&nbsp;</a></span>scru128_counter_hi()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static uint32_t scru128_counter_hi </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>id</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the 24-bit <code>counter_hi</code> field value of a SCRU128 ID. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">id</td><td>16-byte big-endian byte array that represents a SCRU128 ID. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ab2a48b394cd3b35126ecb348053274da" name="ab2a48b394cd3b35126ecb348053274da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2a48b394cd3b35126ecb348053274da">&#9670;&nbsp;</a></span>scru128_counter_lo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static uint32_t scru128_counter_lo </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>id</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the 24-bit <code>counter_lo</code> field value of a SCRU128 ID. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">id</td><td>16-byte big-endian byte array that represents a SCRU128 ID. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a361acb1706952115481e4febc8f2d5a1" name="a361acb1706952115481e4febc8f2d5a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a361acb1706952115481e4febc8f2d5a1">&#9670;&nbsp;</a></span>scru128_entropy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static uint32_t scru128_entropy </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>id</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the 32-bit <code>entropy</code> field value of a SCRU128 ID. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">id</td><td>16-byte big-endian byte array that represents a SCRU128 ID. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a12545c4b85fa1a769fae51d5a2fc1ca4" name="a12545c4b85fa1a769fae51d5a2fc1ca4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12545c4b85fa1a769fae51d5a2fc1ca4">&#9670;&nbsp;</a></span>scru128_from_fields()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -263,8 +377,8 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_initia
         <tr>
           <td class="memname">static int scru128_from_fields </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="struct_scru128_id.html">Scru128Id</a> *&#160;</td>
-          <td class="paramname"><em>out</em>, </td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>id_out</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -303,10 +417,10 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_initia
 </table>
 </div><div class="memdoc">
 
-<p>Creates a SCRU128 ID object from field values. </p>
+<p>Creates a SCRU128 ID from field values. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">out</td><td>Location where the new object is stored. </td></tr>
+    <tr><td class="paramname">id_out</td><td>16-byte byte array where the created SCRU128 ID is stored. </td></tr>
     <tr><td class="paramname">timestamp</td><td>48-bit <code>timestamp</code> field value. </td></tr>
     <tr><td class="paramname">counter_hi</td><td>24-bit <code>counter_hi</code> field value. </td></tr>
     <tr><td class="paramname">counter_lo</td><td>24-bit <code>counter_lo</code> field value. </td></tr>
@@ -318,23 +432,26 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_initia
 
 </div>
 </div>
-<a id="a51ed6a296a7bef6c8a7e5ee178b7e413" name="a51ed6a296a7bef6c8a7e5ee178b7e413"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a51ed6a296a7bef6c8a7e5ee178b7e413">&#9670;&nbsp;</a></span>scru128_from_str()</h2>
+<a id="aa0b1f1555c5b18ba9306dc498b1a081e" name="aa0b1f1555c5b18ba9306dc498b1a081e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa0b1f1555c5b18ba9306dc498b1a081e">&#9670;&nbsp;</a></span>scru128_from_str()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">int scru128_from_str </td>
+          <td class="memname">static int scru128_from_str </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="struct_scru128_id.html">Scru128Id</a> *&#160;</td>
-          <td class="paramname"><em>out</em>, </td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>id_out</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>text</em>&#160;</td>
+          <td class="paramname"><em>str</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -342,22 +459,27 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_initia
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
-<p>Creates a SCRU128 ID object from a 25-digit string representation. </p>
+<p>Creates a SCRU128 ID from a 25-digit string representation. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">out</td><td>Location where the new object is stored. </td></tr>
-    <tr><td class="paramname">text</td><td>Null-terminated ASCII character array containing the 25-digit string representation. </td></tr>
+    <tr><td class="paramname">id_out</td><td>16-byte byte array where the created SCRU128 ID is stored. </td></tr>
+    <tr><td class="paramname">str</td><td>Null-terminated character array containing the 25-digit string representation. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Zero on success or a non-zero integer if <code>text</code> is not a valid string representation. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Zero on success or a non-zero integer if <code>str</code> is not a valid string representation. </dd></dl>
 
 </div>
 </div>
-<a id="ad2603535abc615d96cbc17f20c20e894" name="ad2603535abc615d96cbc17f20c20e894"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad2603535abc615d96cbc17f20c20e894">&#9670;&nbsp;</a></span>scru128_generate()</h2>
+<a id="a03dac9a0d491fb675ff74e42ca52e6e6" name="a03dac9a0d491fb675ff74e42ca52e6e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a03dac9a0d491fb675ff74e42ca52e6e6">&#9670;&nbsp;</a></span>scru128_generate()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -371,8 +493,8 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_initia
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="struct_scru128_id.html">Scru128Id</a> *&#160;</td>
-          <td class="paramname"><em>out</em>&#160;</td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>id_out</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -382,106 +504,22 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_initia
       </table>
 </div><div class="memdoc">
 
-<p>Generates a new SCRU128 ID using the generator <code>g</code>. </p>
+<p>Generates a new SCRU128 ID. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">out</td><td>Location where the generated ID is stored. </td></tr>
+    <tr><td class="paramname">g</td><td>Generator state object used to generate an ID. </td></tr>
+    <tr><td class="paramname">id_out</td><td>16-byte byte array where the generated SCRU128 ID is stored. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Zero on success or a non-zero integer if the system clock or random number generator returns an error. </dd></dl>
-<dl class="section attention"><dt>Attention</dt><dd>This function is NOT thread-safe. The generator <code>g</code> should be protected from concurrent accesses using a mutex or other synchronization mechanism to avoid race conditions. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>This function is not available when the library is built with the compiler flag <code>-DSCRU128_NO_GENERATOR</code>. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd><code>SCRU128_GENERATOR_STATUS_*</code> code that describes the characteristics of generated ID. The returned code is negative if it reports an error. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This single-file library does not provide a concrete implementation of this function, so users have to implement it to enable high-level generator APIs (if necessary) by integrating the real-time clock and random number generator available in the system and the <code><a class="el" href="scru128_8h.html#a340b6579f50b74f8b135fb4f9beef648" title="Generates a new SCRU128 ID with the given timestamp and random number generator.">scru128_generate_core()</a></code> function. </dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>The thread-safety of this function is implementation-dependent, but it is usually NOT thread-safe. The generator <code>g</code> should be protected from concurrent accesses using a mutex or other synchronization mechanism to avoid race conditions. </dd></dl>
 
 </div>
 </div>
-<a id="a58950ffaebe81a896265036bdabc9d30" name="a58950ffaebe81a896265036bdabc9d30"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a58950ffaebe81a896265036bdabc9d30">&#9670;&nbsp;</a></span>scru128_generate_core()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int scru128_generate_core </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *&#160;</td>
-          <td class="paramname"><em>g</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="struct_scru128_id.html">Scru128Id</a> *&#160;</td>
-          <td class="paramname"><em>out</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint64_t&#160;</td>
-          <td class="paramname"><em>timestamp</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Generates a new SCRU128 ID with the <code>timestamp</code> passed using the generator <code>g</code>. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">out</td><td>Location where the generated ID is stored. </td></tr>
-    <tr><td class="paramname">timestamp</td><td>48-bit <code>timestamp</code> field value. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Zero on success or a non-zero integer if <code>timestamp</code> is not a 48-bit positive integer or the random number generator returns an error. </dd></dl>
-<dl class="section attention"><dt>Attention</dt><dd>This function is NOT thread-safe. The generator <code>g</code> should be protected from concurrent accesses using a mutex or other synchronization mechanism to avoid race conditions. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>This function is not available when the library is built with the compiler flag <code>-DSCRU128_NO_GENERATOR</code>. </dd></dl>
-
-</div>
-</div>
-<a id="a28db60fa0f71c034729b7523e4ee1422" name="a28db60fa0f71c034729b7523e4ee1422"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a28db60fa0f71c034729b7523e4ee1422">&#9670;&nbsp;</a></span>scru128_generate_string()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int scru128_generate_string </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *&#160;</td>
-          <td class="paramname"><em>g</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">char *&#160;</td>
-          <td class="paramname"><em>out</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Generates a new SCRU128 ID encoded in the 25-digit canonical string representation using the generator <code>g</code>. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">out</td><td>At least 26-byte character array where the returned string is stored. The returned array is a 26-byte null-terminated string consisting of 25 <code>[0-9A-Z]</code> characters and null. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Return value of <code><a class="el" href="scru128_8h.html#ad2603535abc615d96cbc17f20c20e894" title="Generates a new SCRU128 ID using the generator g.">scru128_generate()</a></code>. </dd></dl>
-<dl class="section attention"><dt>Attention</dt><dd>This function is NOT thread-safe. The generator <code>g</code> should be protected from concurrent accesses using a mutex or other synchronization mechanism to avoid race conditions. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>This function is not available when the library is built with the compiler flag <code>-DSCRU128_NO_GENERATOR</code>. </dd></dl>
-
-</div>
-</div>
-<a id="ac6b2eafdd891bc35b6f3613185780ef4" name="ac6b2eafdd891bc35b6f3613185780ef4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac6b2eafdd891bc35b6f3613185780ef4">&#9670;&nbsp;</a></span>scru128_generator_last_status()</h2>
+<a id="a340b6579f50b74f8b135fb4f9beef648" name="a340b6579f50b74f8b135fb4f9beef648"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a340b6579f50b74f8b135fb4f9beef648">&#9670;&nbsp;</a></span>scru128_generate_core()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -490,45 +528,28 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_initia
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static <a class="el" href="scru128_8h.html#a04ec21ec733e1300e665a40be76e4cbf">Scru128GeneratorStatus</a> scru128_generator_last_status </td>
+          <td class="memname">static int8_t scru128_generate_core </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *&#160;</td>
-          <td class="paramname"><em>g</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Returns a <code>Scru128GeneratorStatus</code> code that indicates the internal state involved in the last generation of ID. </p>
-<dl class="section note"><dt>Note</dt><dd>The generator <code>g</code> should be protected from concurrent accesses during the sequential calls to a generation function and this method to avoid race conditions. </dd></dl>
-
-</div>
-</div>
-<a id="a54d191b27448be2492d8e10134c08244" name="a54d191b27448be2492d8e10134c08244"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a54d191b27448be2492d8e10134c08244">&#9670;&nbsp;</a></span>scru128_to_bytes()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void scru128_to_bytes </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="struct_scru128_id.html">Scru128Id</a> *&#160;</td>
-          <td class="paramname"><em>id</em>, </td>
+          <td class="paramname"><em>g</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>out</em>&#160;</td>
+          <td class="paramname"><em>id_out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>timestamp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t(*)(void)&#160;</td>
+          <td class="paramname"><em>arc4random</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -543,33 +564,41 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_initia
 </table>
 </div><div class="memdoc">
 
-<p>Returns a byte array containing the 128-bit unsigned integer representation of a SCRU128 ID. </p>
+<p>Generates a new SCRU128 ID with the given <code>timestamp</code> and random number generator. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">out</td><td>Unsigned byte array where the returned array is stored. The returned array is a 16-byte byte array containing the 128-bit unsigned integer representation in the big-endian (network) byte order. </td></tr>
+    <tr><td class="paramname">g</td><td>Generator state object used to generate an ID. </td></tr>
+    <tr><td class="paramname">id_out</td><td>16-byte byte array where the generated SCRU128 ID is stored. </td></tr>
+    <tr><td class="paramname">timestamp</td><td>48-bit <code>timestamp</code> field value. </td></tr>
+    <tr><td class="paramname">arc4random</td><td>Function pointer to <code>arc4random()</code> or a compatible function that returns a (cryptographically strong) random number in the range of 32-bit unsigned integer. </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd><code>SCRU128_GENERATOR_STATUS_*</code> code that describes the characteristics of generated ID. The returned code is negative if it reports an error. </dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>This function is NOT thread-safe. The generator <code>g</code> should be protected from concurrent accesses using a mutex or other synchronization mechanism to avoid race conditions. </dd></dl>
 
 </div>
 </div>
-<a id="a71e6a763e65433ffd5127608c9428111" name="a71e6a763e65433ffd5127608c9428111"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a71e6a763e65433ffd5127608c9428111">&#9670;&nbsp;</a></span>scru128_to_str()</h2>
+<a id="a875cccf35abd0d4f8e4f3bdc5046e39a" name="a875cccf35abd0d4f8e4f3bdc5046e39a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a875cccf35abd0d4f8e4f3bdc5046e39a">&#9670;&nbsp;</a></span>scru128_generate_string()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void scru128_to_str </td>
+          <td class="memname">static int scru128_generate_string </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="struct_scru128_id.html">Scru128Id</a> *&#160;</td>
-          <td class="paramname"><em>id</em>, </td>
+          <td class="paramtype"><a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">char *&#160;</td>
-          <td class="paramname"><em>out</em>&#160;</td>
+          <td class="paramname"><em>str_out</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -577,12 +606,100 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_initia
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Generates a new SCRU128 ID encoded in the 25-digit canonical string representation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">g</td><td>Generator state object used to generate an ID. </td></tr>
+    <tr><td class="paramname">str_out</td><td>26-byte character array where the returned string is stored. The returned array is a 26-byte null-terminated string consisting of 25 <code>[0-9A-Z]</code> characters and null. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Return value of <code><a class="el" href="scru128_8h.html#a03dac9a0d491fb675ff74e42ca52e6e6" title="Generates a new SCRU128 ID.">scru128_generate()</a></code>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Provide a concrete implementation of <code><a class="el" href="scru128_8h.html#a03dac9a0d491fb675ff74e42ca52e6e6" title="Generates a new SCRU128 ID.">scru128_generate()</a></code> to enable this function. </dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>See <code><a class="el" href="scru128_8h.html#a03dac9a0d491fb675ff74e42ca52e6e6" title="Generates a new SCRU128 ID.">scru128_generate()</a></code> for the thread-safety consideration. </dd></dl>
+
+</div>
+</div>
+<a id="ac53b03a0dad3cf0b95737a7dd0a13ac3" name="ac53b03a0dad3cf0b95737a7dd0a13ac3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac53b03a0dad3cf0b95737a7dd0a13ac3">&#9670;&nbsp;</a></span>scru128_timestamp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static uint64_t scru128_timestamp </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>id</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns the 48-bit <code>timestamp</code> field value of a SCRU128 ID. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">id</td><td>16-byte big-endian byte array that represents a SCRU128 ID. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aba6d3176efe82426bb85e198601223a3" name="aba6d3176efe82426bb85e198601223a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba6d3176efe82426bb85e198601223a3">&#9670;&nbsp;</a></span>scru128_to_str()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void scru128_to_str </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>str_out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Returns the 25-digit canonical string representation of a SCRU128 ID. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">out</td><td>At least 26-byte character array where the returned string is stored. The returned array is a 26-byte null-terminated string consisting of 25 <code>[0-9A-Z]</code> characters and null. </td></tr>
+    <tr><td class="paramname">id</td><td>16-byte big-endian byte array that represents a SCRU128 ID. </td></tr>
+    <tr><td class="paramname">str_out</td><td>26-byte character array where the returned string is stored. The returned array is a 26-byte null-terminated string consisting of 25 <code>[0-9A-Z]</code> characters and null. </td></tr>
   </table>
   </dd>
 </dl>

@@ -53,61 +53,61 @@ $(function() {
 <li>80-bit three-layer randomness for global uniqueness</li>
 </ul>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="scru128_8h.html">scru128.h</a>&quot;</span></div>
+<div class="line"> </div>
 <div class="line"><span class="preprocessor">#include &lt;stdio.h&gt;</span></div>
 <div class="line"> </div>
 <div class="line"><span class="keywordtype">int</span> main() {</div>
 <div class="line">  <a class="code hl_struct" href="struct_scru128_generator.html">Scru128Generator</a> g;</div>
-<div class="line">  <a class="code hl_function" href="scru128_8h.html#a51408a063f653d25ca8654f842b35ac0">scru128_initialize_generator</a>(&amp;g);</div>
+<div class="line">  <a class="code hl_function" href="scru128_8h.html#ae9199458267b62b00d66c439313b59da">scru128_generator_init</a>(&amp;g);</div>
 <div class="line"> </div>
-<div class="line">  <span class="comment">// generate a new identifier object</span></div>
-<div class="line">  <a class="code hl_struct" href="struct_scru128_id.html">Scru128Id</a> x;</div>
-<div class="line">  <a class="code hl_function" href="scru128_8c.html#ad2603535abc615d96cbc17f20c20e894">scru128_generate</a>(&amp;g, &amp;x);</div>
-<div class="line">  <span class="keywordtype">char</span> text[26];</div>
-<div class="line">  <a class="code hl_function" href="scru128_8c.html#a71e6a763e65433ffd5127608c9428111">scru128_to_str</a>(&amp;x, text);</div>
+<div class="line">  <span class="comment">// generate a new identifier</span></div>
+<div class="line">  uint8_t x[16];</div>
+<div class="line">  <a class="code hl_function" href="scru128_8h.html#a03dac9a0d491fb675ff74e42ca52e6e6">scru128_generate</a>(&amp;g, x);</div>
+<div class="line">  <span class="keywordtype">char</span> text[<a class="code hl_define" href="scru128_8h.html#aa9daa0fa95664c7dc723930e78b05bf6">SCRU128_STR_LEN</a>]; <span class="comment">// 26 bytes</span></div>
+<div class="line">  <a class="code hl_function" href="scru128_8h.html#aba6d3176efe82426bb85e198601223a3">scru128_to_str</a>(x, text);</div>
 <div class="line">  puts(text); <span class="comment">// e.g. &quot;036Z951MHJIKZIK2GSL81GR7L&quot;</span></div>
 <div class="line"> </div>
 <div class="line">  <span class="comment">// generate a textual representation directly</span></div>
-<div class="line">  <a class="code hl_function" href="scru128_8c.html#a28db60fa0f71c034729b7523e4ee1422">scru128_generate_string</a>(&amp;g, text);</div>
+<div class="line">  <a class="code hl_function" href="scru128_8h.html#a875cccf35abd0d4f8e4f3bdc5046e39a">scru128_generate_string</a>(&amp;g, text);</div>
 <div class="line">  puts(text); <span class="comment">// e.g. &quot;036Z951MHZX67T63MQ9XE6Q0J&quot;</span></div>
 <div class="line"> </div>
 <div class="line">  <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
-<div class="ttc" id="ascru128_8c_html_a28db60fa0f71c034729b7523e4ee1422"><div class="ttname"><a href="scru128_8c.html#a28db60fa0f71c034729b7523e4ee1422">scru128_generate_string</a></div><div class="ttdeci">int scru128_generate_string(Scru128Generator *g, char *out)</div><div class="ttdoc">Generates a new SCRU128 ID encoded in the 25-digit canonical string representation using the generato...</div><div class="ttdef"><b>Definition:</b> scru128.c:218</div></div>
-<div class="ttc" id="ascru128_8c_html_a71e6a763e65433ffd5127608c9428111"><div class="ttname"><a href="scru128_8c.html#a71e6a763e65433ffd5127608c9428111">scru128_to_str</a></div><div class="ttdeci">void scru128_to_str(const Scru128Id *id, char *out)</div><div class="ttdoc">Returns the 25-digit canonical string representation of a SCRU128 ID.</div><div class="ttdef"><b>Definition:</b> scru128.c:86</div></div>
-<div class="ttc" id="ascru128_8c_html_ad2603535abc615d96cbc17f20c20e894"><div class="ttname"><a href="scru128_8c.html#ad2603535abc615d96cbc17f20c20e894">scru128_generate</a></div><div class="ttdeci">int scru128_generate(Scru128Generator *g, Scru128Id *out)</div><div class="ttdoc">Generates a new SCRU128 ID using the generator g.</div><div class="ttdef"><b>Definition:</b> scru128.c:208</div></div>
 <div class="ttc" id="ascru128_8h_html"><div class="ttname"><a href="scru128_8h.html">scru128.h</a></div><div class="ttdoc">SCRU128: Sortable, Clock and Random number-based Unique identifier.</div></div>
-<div class="ttc" id="ascru128_8h_html_a51408a063f653d25ca8654f842b35ac0"><div class="ttname"><a href="scru128_8h.html#a51408a063f653d25ca8654f842b35ac0">scru128_initialize_generator</a></div><div class="ttdeci">static void scru128_initialize_generator(Scru128Generator *g)</div><div class="ttdoc">Initializes a generator struct g.</div><div class="ttdef"><b>Definition:</b> scru128.h:261</div></div>
-<div class="ttc" id="astruct_scru128_generator_html"><div class="ttname"><a href="struct_scru128_generator.html">Scru128Generator</a></div><div class="ttdoc">Represents a SCRU128 ID generator that encapsulates the monotonic counter and other internal states.</div><div class="ttdef"><b>Definition:</b> scru128.h:91</div></div>
-<div class="ttc" id="astruct_scru128_id_html"><div class="ttname"><a href="struct_scru128_id.html">Scru128Id</a></div><div class="ttdoc">Represents a SCRU128 ID and provides various converters and comparison operators.</div><div class="ttdef"><b>Definition:</b> scru128.h:35</div></div>
+<div class="ttc" id="ascru128_8h_html_a03dac9a0d491fb675ff74e42ca52e6e6"><div class="ttname"><a href="scru128_8h.html#a03dac9a0d491fb675ff74e42ca52e6e6">scru128_generate</a></div><div class="ttdeci">int scru128_generate(Scru128Generator *g, uint8_t *id_out)</div><div class="ttdoc">Generates a new SCRU128 ID.</div></div>
+<div class="ttc" id="ascru128_8h_html_a875cccf35abd0d4f8e4f3bdc5046e39a"><div class="ttname"><a href="scru128_8h.html#a875cccf35abd0d4f8e4f3bdc5046e39a">scru128_generate_string</a></div><div class="ttdeci">static int scru128_generate_string(Scru128Generator *g, char *str_out)</div><div class="ttdoc">Generates a new SCRU128 ID encoded in the 25-digit canonical string representation.</div><div class="ttdef"><b>Definition:</b> scru128.h:457</div></div>
+<div class="ttc" id="ascru128_8h_html_aa9daa0fa95664c7dc723930e78b05bf6"><div class="ttname"><a href="scru128_8h.html#aa9daa0fa95664c7dc723930e78b05bf6">SCRU128_STR_LEN</a></div><div class="ttdeci">#define SCRU128_STR_LEN</div><div class="ttdoc">Size in bytes of a SCRU128 ID in the string representation (25 digits + NUL).</div><div class="ttdef"><b>Definition:</b> scru128.h:37</div></div>
+<div class="ttc" id="ascru128_8h_html_aba6d3176efe82426bb85e198601223a3"><div class="ttname"><a href="scru128_8h.html#aba6d3176efe82426bb85e198601223a3">scru128_to_str</a></div><div class="ttdeci">static void scru128_to_str(const uint8_t *id, char *str_out)</div><div class="ttdoc">Returns the 25-digit canonical string representation of a SCRU128 ID.</div><div class="ttdef"><b>Definition:</b> scru128.h:290</div></div>
+<div class="ttc" id="ascru128_8h_html_ae9199458267b62b00d66c439313b59da"><div class="ttname"><a href="scru128_8h.html#ae9199458267b62b00d66c439313b59da">scru128_generator_init</a></div><div class="ttdeci">static void scru128_generator_init(Scru128Generator *g)</div><div class="ttdoc">Initializes a generator struct g.</div><div class="ttdef"><b>Definition:</b> scru128.h:348</div></div>
+<div class="ttc" id="astruct_scru128_generator_html"><div class="ttname"><a href="struct_scru128_generator.html">Scru128Generator</a></div><div class="ttdoc">Represents a SCRU128 ID generator that encapsulates the monotonic counter and other internal states.</div><div class="ttdef"><b>Definition:</b> scru128.h:86</div></div>
 </div><!-- fragment --><p >See <a href="https://github.com/scru128/spec">SCRU128 Specification</a> for details.</p>
 <h1><a class="anchor" id="autotoc_md1"></a>
-Build</h1>
-<p ><code><a class="el" href="scru128_8h.html" title="SCRU128: Sortable, Clock and Random number-based Unique identifier.">scru128.h</a></code> and <code><a class="el" href="scru128_8c.html" title="SCRU128: Sortable, Clock and Random number-based Unique identifier.">scru128.c</a></code> currently do not include any platform-dependent code (they depend on <code>stdint.h</code> only) and thus platform-specific functions to access to the system clocks and random number generators have to be implemented separately. Define the following two functions in a separate source file and link it to <code><a class="el" href="scru128_8c.html" title="SCRU128: Sortable, Clock and Random number-based Unique identifier.">scru128.c</a></code> at build time. Examples are found in the <a href="https://github.com/scru128/c/tree/main/platform">platform</a> directory.</p>
-<div class="fragment"><div class="line"><span class="comment">/**</span></div>
-<div class="line"><span class="comment"> * Returns the current unix time in milliseconds.</span></div>
-<div class="line"><span class="comment"> *</span></div>
-<div class="line"><span class="comment"> * @param out Location where the returned value is stored.</span></div>
-<div class="line"><span class="comment"> * @return Zero on success or a non-zero integer on failure.</span></div>
-<div class="line"><span class="comment"> */</span></div>
-<div class="line"><span class="keywordtype">int</span> <a class="code hl_function" href="scru128_8c.html#a5550ce4391d2b3cef29f63f6a4b5e926">scru128_get_msec_unixts</a>(uint64_t *out);</div>
-<div class="line"><span class="comment"></span> </div>
-<div class="line"><span class="comment">/**</span></div>
-<div class="line"><span class="comment"> * Returns a 32-bit random unsigned integer.</span></div>
-<div class="line"><span class="comment"> *</span></div>
-<div class="line"><span class="comment"> * @param out Location where the returned value is stored.</span></div>
-<div class="line"><span class="comment"> * @return Zero on success or a non-zero integer on failure.</span></div>
-<div class="line"><span class="comment"> */</span></div>
-<div class="line"><span class="keywordtype">int</span> <a class="code hl_function" href="scru128_8c.html#ada8613dffe0dce4953acec130b6168e7">scru128_get_random_uint32</a>(uint32_t *out);</div>
-<div class="ttc" id="ascru128_8c_html_a5550ce4391d2b3cef29f63f6a4b5e926"><div class="ttname"><a href="scru128_8c.html#a5550ce4391d2b3cef29f63f6a4b5e926">scru128_get_msec_unixts</a></div><div class="ttdeci">int scru128_get_msec_unixts(uint64_t *out)</div><div class="ttdoc">Returns the current unix time in milliseconds.</div></div>
-<div class="ttc" id="ascru128_8c_html_ada8613dffe0dce4953acec130b6168e7"><div class="ttname"><a href="scru128_8c.html#ada8613dffe0dce4953acec130b6168e7">scru128_get_random_uint32</a></div><div class="ttdeci">int scru128_get_random_uint32(uint32_t *out)</div><div class="ttdoc">Returns a 32-bit random unsigned integer.</div></div>
-</div><!-- fragment --><p >Alternatively, you can specify the compiler flag <code>-DSCRU128_NO_GENERATOR</code> to build <code><a class="el" href="scru128_8c.html" title="SCRU128: Sortable, Clock and Random number-based Unique identifier.">scru128.c</a></code> without generator functionality.</p>
+Platform integration</h1>
+<p ><code><a class="el" href="scru128_8h.html" title="SCRU128: Sortable, Clock and Random number-based Unique identifier.">scru128.h</a></code> does not provide a concrete implementation of <code><a class="el" href="scru128_8h.html#a03dac9a0d491fb675ff74e42ca52e6e6" title="Generates a new SCRU128 ID.">scru128_generate()</a></code>, so users have to implement it to enable high-level generator APIs (if necessary) by integrating the real-time clock and random number generator available in the system and the <code><a class="el" href="scru128_8h.html#a340b6579f50b74f8b135fb4f9beef648" title="Generates a new SCRU128 ID with the given timestamp and random number generator.">scru128_generate_core()</a></code> function. Here is a quick example for the BSD-like systems:</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="scru128_8h.html">scru128.h</a>&quot;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="preprocessor">#include &lt;stdlib.h&gt;</span> <span class="comment">// or &lt;bsd/stdlib.h&gt; on Linux with libbsd</span></div>
+<div class="line"><span class="preprocessor">#include &lt;time.h&gt;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">int</span> <a class="code hl_function" href="scru128_8h.html#a03dac9a0d491fb675ff74e42ca52e6e6">scru128_generate</a>(<a class="code hl_struct" href="struct_scru128_generator.html">Scru128Generator</a> *g, uint8_t *id_out) {</div>
+<div class="line">  <span class="keyword">struct </span>timespec tp;</div>
+<div class="line">  <span class="keywordtype">int</span> err = clock_gettime(CLOCK_REALTIME, &amp;tp);</div>
+<div class="line">  <span class="keywordflow">if</span> (err) {</div>
+<div class="line">    <span class="keywordflow">return</span> <a class="code hl_define" href="scru128_8h.html#a663030cd94ef3f3bb0d19beb090009d4">SCRU128_GENERATOR_STATUS_ERROR</a>;</div>
+<div class="line">  }</div>
+<div class="line">  uint64_t timestamp = (uint64_t)tp.tv_sec * 1000 + tp.tv_nsec / 1000000;</div>
+<div class="line">  <span class="keywordflow">return</span> <a class="code hl_function" href="scru128_8h.html#a340b6579f50b74f8b135fb4f9beef648">scru128_generate_core</a>(g, id_out, timestamp, &amp;arc4random);</div>
+<div class="line">}</div>
+<div class="ttc" id="ascru128_8h_html_a340b6579f50b74f8b135fb4f9beef648"><div class="ttname"><a href="scru128_8h.html#a340b6579f50b74f8b135fb4f9beef648">scru128_generate_core</a></div><div class="ttdeci">static int8_t scru128_generate_core(Scru128Generator *g, uint8_t *id_out, uint64_t timestamp, uint32_t(*arc4random)(void))</div><div class="ttdoc">Generates a new SCRU128 ID with the given timestamp and random number generator.</div><div class="ttdef"><b>Definition:</b> scru128.h:371</div></div>
+<div class="ttc" id="ascru128_8h_html_a663030cd94ef3f3bb0d19beb090009d4"><div class="ttname"><a href="scru128_8h.html#a663030cd94ef3f3bb0d19beb090009d4">SCRU128_GENERATOR_STATUS_ERROR</a></div><div class="ttdeci">#define SCRU128_GENERATOR_STATUS_ERROR</div><div class="ttdoc">Indicates that the previous generation failed.</div><div class="ttdef"><b>Definition:</b> scru128.h:76</div></div>
+</div><!-- fragment --><p >Find more examples in the <a href="https://github.com/scru128/c/tree/main/platform">platform</a> directory.</p>
 <h1><a class="anchor" id="autotoc_md2"></a>
 License</h1>
 <p >Licensed under the Apache License, Version 2.0.</p>
 <h1><a class="anchor" id="autotoc_md3"></a>
 See also</h1>
 <ul>
-<li><a href="https://scru128.github.io/c/scru128_8h.html">Doxygen generated docs</a> for provided functions </li>
+<li><a href="https://scru128.github.io/c/scru128_8h.html">API reference</a> for the list of provided functions </li>
 </ul>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
