@@ -354,7 +354,84 @@ static inline void scru128_generator_init(Scru128Generator *g) {
 
 /**
  * Generates a new SCRU128 ID with the given `timestamp` and random number
+ * generator, guaranteeing the monotonic order of generated IDs despite a
+ * significant timestamp rollback.
+ *
+ * This function returns monotonically increasing IDs unless a `timestamp`
+ * provided is significantly (by ten seconds or more) smaller than the one
+ * embedded in the immediately preceding ID. If such a significant clock
+ * rollback is detected, this function keeps the generator state and `id_out`
+ * untouched and returns `SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK`.
+ *
+ * @param g Generator state object used to generate an ID.
+ * @param id_out 16-byte byte array where the generated SCRU128 ID is stored.
+ * @param timestamp 48-bit `timestamp` field value.
+ * @param arc4random Function pointer to `arc4random()` or a compatible function
+ * that returns a (cryptographically strong) random number in the range of
+ * 32-bit unsigned integer.
+ * @return `SCRU128_GENERATOR_STATUS_*` code that describes the characteristics
+ * of generated ID. The returned code is negative if it reports an error.
+ * @attention This function is NOT thread-safe. The generator `g` should be
+ * protected from concurrent accesses using a mutex or other synchronization
+ * mechanism to avoid race conditions.
+ */
+static inline int8_t
+scru128_generate_core_no_rewind(Scru128Generator *g, uint8_t *id_out,
+                                uint64_t timestamp,
+                                uint32_t (*arc4random)(void)) {
+  static const uint64_t ROLLBACK_ALLOWANCE = 10000; // 10 seconds
+
+  if (timestamp == 0 || timestamp > SCRU128_MAX_TIMESTAMP) {
+    return SCRU128_GENERATOR_STATUS_ERROR;
+  }
+
+  int8_t status = SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP;
+  if (timestamp > g->_timestamp) {
+    g->_timestamp = timestamp;
+    g->_counter_lo = (*arc4random)() & SCRU128_MAX_COUNTER_LO;
+  } else if (timestamp + ROLLBACK_ALLOWANCE > g->_timestamp) {
+    // go on with previous timestamp if new one is not much smaller
+    g->_counter_lo++;
+    status = SCRU128_GENERATOR_STATUS_COUNTER_LO_INC;
+    if (g->_counter_lo > SCRU128_MAX_COUNTER_LO) {
+      g->_counter_lo = 0;
+      g->_counter_hi++;
+      status = SCRU128_GENERATOR_STATUS_COUNTER_HI_INC;
+      if (g->_counter_hi > SCRU128_MAX_COUNTER_HI) {
+        g->_counter_hi = 0;
+        // increment timestamp at counter overflow
+        g->_timestamp++;
+        g->_counter_lo = (*arc4random)() & SCRU128_MAX_COUNTER_LO;
+        status = SCRU128_GENERATOR_STATUS_TIMESTAMP_INC;
+      }
+    }
+  } else {
+    // abort if clock moves back to unbearable extent
+    return SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK;
+  }
+
+  if (g->_timestamp - g->_ts_counter_hi >= 1000 || g->_ts_counter_hi == 0) {
+    g->_ts_counter_hi = g->_timestamp;
+    g->_counter_hi = (*arc4random)() & SCRU128_MAX_COUNTER_HI;
+  }
+
+  if (scru128_from_fields(id_out, g->_timestamp, g->_counter_hi, g->_counter_lo,
+                          (*arc4random)()) == 0) {
+    return status;
+  } else {
+    return SCRU128_GENERATOR_STATUS_ERROR;
+  }
+}
+
+/**
+ * Generates a new SCRU128 ID with the given `timestamp` and random number
  * generator.
+ *
+ * This function returns monotonically increasing IDs unless a `timestamp`
+ * provided is significantly (by ten seconds or more) smaller than the one
+ * embedded in the immediately preceding ID. If such a significant clock
+ * rollback is detected, this function rewinds the generator state and returns a
+ * new ID based on the given argument.
  *
  * @param g Generator state object used to generate an ID.
  * @param id_out 16-byte byte array where the generated SCRU128 ID is stored.
@@ -371,47 +448,16 @@ static inline void scru128_generator_init(Scru128Generator *g) {
 static inline int8_t scru128_generate_core(Scru128Generator *g, uint8_t *id_out,
                                            uint64_t timestamp,
                                            uint32_t (*arc4random)(void)) {
-  if (timestamp == 0 || timestamp > SCRU128_MAX_TIMESTAMP) {
-    return SCRU128_GENERATOR_STATUS_ERROR;
-  }
-
-  int8_t status = SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP;
-  if (timestamp > g->_timestamp) {
-    g->_timestamp = timestamp;
-    g->_counter_lo = (*arc4random)() & SCRU128_MAX_COUNTER_LO;
-  } else if (timestamp + 10000 > g->_timestamp) {
-    g->_counter_lo++;
-    status = SCRU128_GENERATOR_STATUS_COUNTER_LO_INC;
-    if (g->_counter_lo > SCRU128_MAX_COUNTER_LO) {
-      g->_counter_lo = 0;
-      g->_counter_hi++;
-      status = SCRU128_GENERATOR_STATUS_COUNTER_HI_INC;
-      if (g->_counter_hi > SCRU128_MAX_COUNTER_HI) {
-        g->_counter_hi = 0;
-        // increment timestamp at counter overflow
-        g->_timestamp++;
-        g->_counter_lo = (*arc4random)() & SCRU128_MAX_COUNTER_LO;
-        status = SCRU128_GENERATOR_STATUS_TIMESTAMP_INC;
-      }
-    }
-  } else {
-    // reset state if clock moves back by ten seconds or more
-    g->_ts_counter_hi = 0;
-    g->_timestamp = timestamp;
-    g->_counter_lo = (*arc4random)() & SCRU128_MAX_COUNTER_LO;
-    status = SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK;
-  }
-
-  if (g->_timestamp - g->_ts_counter_hi >= 1000 || g->_ts_counter_hi == 0) {
-    g->_ts_counter_hi = g->_timestamp;
-    g->_counter_hi = (*arc4random)() & SCRU128_MAX_COUNTER_HI;
-  }
-
-  if (scru128_from_fields(id_out, g->_timestamp, g->_counter_hi, g->_counter_lo,
-                          (*arc4random)()) == 0) {
+  int8_t status =
+      scru128_generate_core_no_rewind(g, id_out, timestamp, arc4random);
+  if (status != SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK) {
     return status;
   } else {
-    return SCRU128_GENERATOR_STATUS_ERROR;
+    // reset state and resume
+    g->_timestamp = 0;
+    g->_ts_counter_hi = 0;
+    scru128_generate_core_no_rewind(g, id_out, timestamp, arc4random);
+    return SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK;
   }
 }
 
@@ -424,7 +470,7 @@ static inline int8_t scru128_generate_core(Scru128Generator *g, uint8_t *id_out,
  */
 
 /**
- * Generates a new SCRU128 ID.
+ * Generates a new SCRU128 ID from the current `timestamp`.
  *
  * @param g Generator state object used to generate an ID.
  * @param id_out 16-byte byte array where the generated SCRU128 ID is stored.
