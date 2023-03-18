@@ -269,13 +269,14 @@ void test_decreasing_or_constant_timestamp_no_rewind(void) {
 
   uint64_t ts = 0x0123456789ab;
   scru128_generator_init(&g);
-  int status = scru128_generate_core_no_rewind(&g, prev, ts, &arc4random_mock);
+  int status =
+      scru128_generate_core_no_rewind(&g, prev, ts, &arc4random_mock, 10000);
   assert(status == SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
   assert(scru128_timestamp(prev) == ts);
 
   for (uint64_t i = 0; i < 100000; i++) {
     status = scru128_generate_core_no_rewind(
-        &g, curr, ts - (i < 9998 ? i : 9998), &arc4random_mock);
+        &g, curr, ts - (i < 9998 ? i : 9998), &arc4random_mock, 10000);
     assert(status == SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
            status == SCRU128_GENERATOR_STATUS_COUNTER_HI_INC ||
            status == SCRU128_GENERATOR_STATUS_TIMESTAMP_INC);
@@ -293,19 +294,20 @@ void test_timestamp_rollback_no_rewind(void) {
 
   uint64_t ts = 0x0123456789ab;
   scru128_generator_init(&g);
-  int status = scru128_generate_core_no_rewind(&g, prev, ts, &arc4random_mock);
+  int status =
+      scru128_generate_core_no_rewind(&g, prev, ts, &arc4random_mock, 10000);
   assert(status == SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
   assert(scru128_timestamp(prev) == ts);
 
   memcpy(curr, prev, SCRU128_LEN);
-  status =
-      scru128_generate_core_no_rewind(&g, curr, ts - 10000, &arc4random_mock);
+  status = scru128_generate_core_no_rewind(&g, curr, ts - 10000,
+                                           &arc4random_mock, 10000);
   assert(status == SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK);
   assert(scru128_compare(prev, curr) == 0);
   assert(memcmp(prev, curr, SCRU128_LEN) == 0); // untouched
 
-  status =
-      scru128_generate_core_no_rewind(&g, curr, ts - 10001, &arc4random_mock);
+  status = scru128_generate_core_no_rewind(&g, curr, ts - 10001,
+                                           &arc4random_mock, 10000);
   assert(status == SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK);
   assert(scru128_compare(prev, curr) == 0);
   assert(memcmp(prev, curr, SCRU128_LEN) == 0); // untouched

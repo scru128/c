@@ -361,10 +361,11 @@ static inline void scru128_generator_init(Scru128Generator *g) {
  * significant timestamp rollback.
  *
  * This function returns monotonically increasing IDs unless a `timestamp`
- * provided is significantly (by ten seconds or more) smaller than the one
- * embedded in the immediately preceding ID. If such a significant clock
- * rollback is detected, this function keeps the generator state and `id_out`
- * untouched and returns `SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK`.
+ * provided is significantly (by `rollback_allowance` milliseconds or more)
+ * smaller than the one embedded in the immediately preceding ID. If such a
+ * significant clock rollback is detected, this function keeps the generator
+ * state and `id_out` untouched and returns
+ * `SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK`.
  *
  * @param g A generator state object used to generate an ID.
  * @param id_out A 16-byte byte array where the generated SCRU128 ID is stored.
@@ -372,19 +373,20 @@ static inline void scru128_generator_init(Scru128Generator *g) {
  * @param arc4random A function pointer to `arc4random()` or a compatible
  * function that returns a (cryptographically strong) random number in the range
  * of 32-bit unsigned integer.
+ * @param rollback_allowance The amount of `timestamp` rollback that is
+ * considered significant. A suggested value is `10000` (milliseconds).
  * @return One of `SCRU128_GENERATOR_STATUS_*` codes that describes the
  * characteristics of generated ID. A negative return code reports an error.
  * @attention This function is NOT thread-safe. The generator `g` should be
  * protected from concurrent accesses using a mutex or other synchronization
  * mechanism to avoid race conditions.
  */
-static inline int8_t
-scru128_generate_core_no_rewind(Scru128Generator *g, uint8_t *id_out,
-                                uint64_t timestamp,
-                                uint32_t (*arc4random)(void)) {
-  static const uint64_t ROLLBACK_ALLOWANCE = 10000; // 10 seconds
-
+static inline int8_t scru128_generate_core_no_rewind(
+    Scru128Generator *g, uint8_t *id_out, uint64_t timestamp,
+    uint32_t (*arc4random)(void), uint64_t rollback_allowance) {
   if (timestamp == 0 || timestamp > SCRU128_MAX_TIMESTAMP) {
+    return SCRU128_GENERATOR_STATUS_ERROR;
+  } else if (rollback_allowance > SCRU128_MAX_TIMESTAMP) {
     return SCRU128_GENERATOR_STATUS_ERROR;
   }
 
@@ -392,7 +394,7 @@ scru128_generate_core_no_rewind(Scru128Generator *g, uint8_t *id_out,
   if (timestamp > g->_timestamp) {
     g->_timestamp = timestamp;
     g->_counter_lo = (*arc4random)() & SCRU128_MAX_COUNTER_LO;
-  } else if (timestamp + ROLLBACK_ALLOWANCE > g->_timestamp) {
+  } else if (timestamp + rollback_allowance > g->_timestamp) {
     // go on with previous timestamp if new one is not much smaller
     g->_counter_lo++;
     status = SCRU128_GENERATOR_STATUS_COUNTER_LO_INC;
@@ -451,15 +453,18 @@ scru128_generate_core_no_rewind(Scru128Generator *g, uint8_t *id_out,
 static inline int8_t scru128_generate_core(Scru128Generator *g, uint8_t *id_out,
                                            uint64_t timestamp,
                                            uint32_t (*arc4random)(void)) {
-  int8_t status =
-      scru128_generate_core_no_rewind(g, id_out, timestamp, arc4random);
+  static const uint64_t DEFAULT_ROLLBACK_ALLOWANCE = 10000; // 10 seconds
+
+  int8_t status = scru128_generate_core_no_rewind(
+      g, id_out, timestamp, arc4random, DEFAULT_ROLLBACK_ALLOWANCE);
   if (status != SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK) {
     return status;
   } else {
     // reset state and resume
     g->_timestamp = 0;
     g->_ts_counter_hi = 0;
-    scru128_generate_core_no_rewind(g, id_out, timestamp, arc4random);
+    scru128_generate_core_no_rewind(g, id_out, timestamp, arc4random,
+                                    DEFAULT_ROLLBACK_ALLOWANCE);
     return SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK;
   }
 }
