@@ -356,9 +356,9 @@ static inline void scru128_generator_init(Scru128Generator *g) {
 }
 
 /**
- * Generates a new SCRU128 ID with the given `timestamp` and random number
- * generator, guaranteeing the monotonic order of generated IDs despite a
- * significant timestamp rollback.
+ * Experimental: Generates a new SCRU128 ID with the given `timestamp` and
+ * random number generator, guaranteeing the monotonic order of generated IDs
+ * despite a significant timestamp rollback.
  *
  * This function returns monotonically increasing IDs unless a `timestamp`
  * provided is significantly (by `rollback_allowance` milliseconds or more)
