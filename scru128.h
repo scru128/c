@@ -3,12 +3,12 @@
  *
  * SCRU128: Sortable, Clock and Random number-based Unique identifier
  *
- * @version   v0.3.0
+ * @version   v0.3.2
  * @copyright Licensed under the Apache License, Version 2.0
  * @see       https://github.com/scru128/c
  */
 /*
- * Copyright 2022 The scru128/c Developers.
+ * Copyright 2022-2023 The scru128/c Developers.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,13 +70,27 @@
 #define SCRU128_GENERATOR_STATUS_TIMESTAMP_INC (4)
 
 /**
- * Indicates that the monotonic order of generated IDs was broken because the
- * latest `timestamp` was less than the previous one by ten seconds or more.
+ * Indicates that the generator was reinitialized and the monotonic order of
+ * generated IDs was broken because the latest `timestamp` was significantly
+ * smaller than the previous one.
  */
-#define SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK (5)
+#define SCRU128_GENERATOR_STATUS_ROLLBACK_RESET (5)
 
 /** Indicates that the previous generation failed. */
 #define SCRU128_GENERATOR_STATUS_ERROR (-1)
+
+/**
+ * Indicates that the previous generation was aborted because the latest
+ * `timestamp` was significantly smaller than the previous one.
+ */
+#define SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT (-2)
+
+/**
+ * A deprecated synonym for `SCRU128_GENERATOR_STATUS_ROLLBACK_RESET`.
+ *
+ * @deprecated Use `SCRU128_GENERATOR_STATUS_ROLLBACK_RESET` instead.
+ */
+#define SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK (5)
 
 /** @} */
 
@@ -97,7 +111,7 @@ typedef struct Scru128Generator {
   uint32_t _counter_lo;
 
   /**
-   * Timestamp at the last renewal of `counter_hi` field.
+   * The timestamp at the last renewal of `counter_hi` field.
    *
    * @private
    */
@@ -356,16 +370,16 @@ static inline void scru128_generator_init(Scru128Generator *g) {
 }
 
 /**
- * Experimental: Generates a new SCRU128 ID with the given `timestamp` and
- * random number generator, guaranteeing the monotonic order of generated IDs
- * despite a significant timestamp rollback.
+ * Generates a new SCRU128 ID with the given `timestamp` and random number
+ * generator, or returns an error upon significant timestamp rollback.
  *
  * This function returns monotonically increasing IDs unless a `timestamp`
  * provided is significantly (by `rollback_allowance` milliseconds or more)
  * smaller than the one embedded in the immediately preceding ID. If such a
- * significant clock rollback is detected, this function keeps the generator
- * state and `id_out` untouched and returns
- * `SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK`.
+ * significant clock rollback is detected, this function aborts and returns
+ * `SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT`.
+ *
+ * See `scru128_generate_or_reset_core()` for the other mode of generation.
  *
  * @param g A generator state object used to generate an ID.
  * @param id_out A 16-byte byte array where the generated SCRU128 ID is stored.
@@ -381,9 +395,10 @@ static inline void scru128_generator_init(Scru128Generator *g) {
  * protected from concurrent accesses using a mutex or other synchronization
  * mechanism to avoid race conditions.
  */
-static inline int8_t scru128_generate_core_no_rewind(
-    Scru128Generator *g, uint8_t *id_out, uint64_t timestamp,
-    uint32_t (*arc4random)(void), uint64_t rollback_allowance) {
+static inline int8_t
+scru128_generate_or_abort_core(Scru128Generator *g, uint8_t *id_out,
+                               uint64_t timestamp, uint32_t (*arc4random)(void),
+                               uint64_t rollback_allowance) {
   if (timestamp == 0 || timestamp > SCRU128_MAX_TIMESTAMP) {
     return SCRU128_GENERATOR_STATUS_ERROR;
   } else if (rollback_allowance > SCRU128_MAX_TIMESTAMP) {
@@ -411,8 +426,8 @@ static inline int8_t scru128_generate_core_no_rewind(
       }
     }
   } else {
-    // abort if clock moves back to unbearable extent
-    return SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK;
+    // abort if clock went backwards to unbearable extent
+    return SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT;
   }
 
   if (g->_timestamp - g->_ts_counter_hi >= 1000 || g->_ts_counter_hi == 0) {
@@ -430,13 +445,15 @@ static inline int8_t scru128_generate_core_no_rewind(
 
 /**
  * Generates a new SCRU128 ID with the given `timestamp` and random number
- * generator.
+ * generator, or resets the generator upon significant timestamp rollback.
  *
  * This function returns monotonically increasing IDs unless a `timestamp`
- * provided is significantly (by ten seconds or more) smaller than the one
- * embedded in the immediately preceding ID. If such a significant clock
- * rollback is detected, this function rewinds the generator state and returns a
- * new ID based on the given argument.
+ * provided is significantly (by `rollback_allowance` milliseconds or more)
+ * smaller than the one embedded in the immediately preceding ID. If such a
+ * significant clock rollback is detected, this function resets the generator
+ * and returns a new ID based on the given `timestamp`.
+ *
+ * See `scru128_generate_or_abort_core()` for the other mode of generation.
  *
  * @param g A generator state object used to generate an ID.
  * @param id_out A 16-byte byte array where the generated SCRU128 ID is stored.
@@ -444,29 +461,43 @@ static inline int8_t scru128_generate_core_no_rewind(
  * @param arc4random A function pointer to `arc4random()` or a compatible
  * function that returns a (cryptographically strong) random number in the range
  * of 32-bit unsigned integer.
+ * @param rollback_allowance The amount of `timestamp` rollback that is
+ * considered significant. A suggested value is `10000` (milliseconds).
  * @return One of `SCRU128_GENERATOR_STATUS_*` codes that describes the
  * characteristics of generated ID. A negative return code reports an error.
  * @attention This function is NOT thread-safe. The generator `g` should be
  * protected from concurrent accesses using a mutex or other synchronization
  * mechanism to avoid race conditions.
  */
-static inline int8_t scru128_generate_core(Scru128Generator *g, uint8_t *id_out,
-                                           uint64_t timestamp,
-                                           uint32_t (*arc4random)(void)) {
-  static const uint64_t DEFAULT_ROLLBACK_ALLOWANCE = 10000; // 10 seconds
-
-  int8_t status = scru128_generate_core_no_rewind(
-      g, id_out, timestamp, arc4random, DEFAULT_ROLLBACK_ALLOWANCE);
-  if (status != SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK) {
-    return status;
-  } else {
+static inline int8_t
+scru128_generate_or_reset_core(Scru128Generator *g, uint8_t *id_out,
+                               uint64_t timestamp, uint32_t (*arc4random)(void),
+                               uint64_t rollback_allowance) {
+  int8_t status = scru128_generate_or_abort_core(
+      g, id_out, timestamp, arc4random, rollback_allowance);
+  if (status == SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT) {
     // reset state and resume
     g->_timestamp = 0;
     g->_ts_counter_hi = 0;
-    scru128_generate_core_no_rewind(g, id_out, timestamp, arc4random,
-                                    DEFAULT_ROLLBACK_ALLOWANCE);
-    return SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK;
+    scru128_generate_or_abort_core(g, id_out, timestamp, arc4random,
+                                   rollback_allowance);
+    status = SCRU128_GENERATOR_STATUS_ROLLBACK_RESET;
   }
+  return status;
+}
+
+/**
+ * A deprecated synonym for `scru128_generate_or_reset_core(g, id_out,
+ * timestamp, arc4random, 10000)`.
+ *
+ * @deprecated Use `scru128_generate_or_reset_core(g, id_out, timestamp,
+ * arc4random, 10000)` instead.
+ */
+static inline int8_t scru128_generate_core(Scru128Generator *g, uint8_t *id_out,
+                                           uint64_t timestamp,
+                                           uint32_t (*arc4random)(void)) {
+  return scru128_generate_or_reset_core(g, id_out, timestamp, arc4random,
+                                        10000);
 }
 
 /** @} */
@@ -486,8 +517,9 @@ static inline int8_t scru128_generate_core(Scru128Generator *g, uint8_t *id_out,
  * characteristics of generated ID. A negative return code reports an error.
  * @note This single-file library does not provide a concrete implementation of
  * this function, so users have to implement it to enable high-level generator
- * APIs (if necessary) by integrating the real-time clock and random number
- * generator available in the system and the `scru128_generate_core()` function.
+ * APIs (if necessary) by integrating the low-level generator primitives
+ * provided by the library with the real-time clock and random number generator
+ * available in the system.
  * @attention The thread-safety of this function is implementation-dependent,
  * but it is usually NOT thread-safe. The generator `g` should be protected from
  * concurrent accesses using a mutex or other synchronization mechanism to avoid

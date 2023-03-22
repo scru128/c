@@ -213,69 +213,19 @@ void test_comparison_methods(void) {
 uint32_t arc4random_mock(void) { return 0x42; }
 
 /** Generates increasing IDs even with decreasing or constant timestamp */
-void test_decreasing_or_constant_timestamp(void) {
-  Scru128Generator g;
-  uint8_t prev[SCRU128_LEN], curr[SCRU128_LEN];
-
-  uint64_t ts = 0x0123456789ab;
-  scru128_generator_init(&g);
-  int status = scru128_generate_core(&g, prev, ts, &arc4random_mock);
-  assert(status == SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
-  assert(scru128_timestamp(prev) == ts);
-
-  for (uint64_t i = 0; i < 100000; i++) {
-    status = scru128_generate_core(&g, curr, ts - (i < 9998 ? i : 9998),
-                                   &arc4random_mock);
-    assert(status == SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
-           status == SCRU128_GENERATOR_STATUS_COUNTER_HI_INC ||
-           status == SCRU128_GENERATOR_STATUS_TIMESTAMP_INC);
-    assert(scru128_compare(prev, curr) < 0);
-    assert(memcmp(prev, curr, SCRU128_LEN) < 0);
-    memcpy(prev, curr, SCRU128_LEN);
-  }
-  assert(scru128_timestamp(prev) >= ts);
-}
-
-/** Breaks increasing order of IDs if timestamp moves backward a lot */
-void test_timestamp_rollback(void) {
-  Scru128Generator g;
-  uint8_t prev[SCRU128_LEN], curr[SCRU128_LEN];
-
-  uint64_t ts = 0x0123456789ab;
-  scru128_generator_init(&g);
-  int status = scru128_generate_core(&g, prev, ts, &arc4random_mock);
-  assert(status == SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
-  assert(scru128_timestamp(prev) == ts);
-
-  status = scru128_generate_core(&g, curr, ts - 10000, &arc4random_mock);
-  assert(status == SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK);
-  assert(scru128_compare(prev, curr) > 0);
-  assert(memcmp(prev, curr, SCRU128_LEN) > 0);
-  assert(scru128_timestamp(curr) == ts - 10000);
-
-  memcpy(prev, curr, SCRU128_LEN);
-  status = scru128_generate_core(&g, curr, ts - 10001, &arc4random_mock);
-  assert(status == SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
-         status == SCRU128_GENERATOR_STATUS_COUNTER_HI_INC ||
-         status == SCRU128_GENERATOR_STATUS_TIMESTAMP_INC);
-  assert(scru128_compare(prev, curr) < 0);
-  assert(memcmp(prev, curr, SCRU128_LEN) < 0);
-}
-
-/** Generates increasing IDs even with decreasing or constant timestamp */
-void test_decreasing_or_constant_timestamp_no_rewind(void) {
+void test_decreasing_or_constant_timestamp_or_reset(void) {
   Scru128Generator g;
   uint8_t prev[SCRU128_LEN], curr[SCRU128_LEN];
 
   uint64_t ts = 0x0123456789ab;
   scru128_generator_init(&g);
   int status =
-      scru128_generate_core_no_rewind(&g, prev, ts, &arc4random_mock, 10000);
+      scru128_generate_or_reset_core(&g, prev, ts, &arc4random_mock, 10000);
   assert(status == SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
   assert(scru128_timestamp(prev) == ts);
 
   for (uint64_t i = 0; i < 100000; i++) {
-    status = scru128_generate_core_no_rewind(
+    status = scru128_generate_or_reset_core(
         &g, curr, ts - (i < 9998 ? i : 9998), &arc4random_mock, 10000);
     assert(status == SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
            status == SCRU128_GENERATOR_STATUS_COUNTER_HI_INC ||
@@ -287,28 +237,82 @@ void test_decreasing_or_constant_timestamp_no_rewind(void) {
   assert(scru128_timestamp(prev) >= ts);
 }
 
-/** Returns CLOCK_ROLLBACK status if timestamp moves backward a lot */
-void test_timestamp_rollback_no_rewind(void) {
+/** Breaks increasing order of IDs if timestamp goes backwards by ten seconds */
+void test_timestamp_rollback_or_reset(void) {
   Scru128Generator g;
   uint8_t prev[SCRU128_LEN], curr[SCRU128_LEN];
 
   uint64_t ts = 0x0123456789ab;
   scru128_generator_init(&g);
   int status =
-      scru128_generate_core_no_rewind(&g, prev, ts, &arc4random_mock, 10000);
+      scru128_generate_or_reset_core(&g, prev, ts, &arc4random_mock, 10000);
+  assert(status == SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
+  assert(scru128_timestamp(prev) == ts);
+
+  status = scru128_generate_or_reset_core(&g, curr, ts - 10000,
+                                          &arc4random_mock, 10000);
+  assert(status == SCRU128_GENERATOR_STATUS_ROLLBACK_RESET);
+  assert(scru128_compare(prev, curr) > 0);
+  assert(memcmp(prev, curr, SCRU128_LEN) > 0);
+  assert(scru128_timestamp(curr) == ts - 10000);
+
+  memcpy(prev, curr, SCRU128_LEN);
+  status = scru128_generate_or_reset_core(&g, curr, ts - 10001,
+                                          &arc4random_mock, 10000);
+  assert(status == SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
+         status == SCRU128_GENERATOR_STATUS_COUNTER_HI_INC ||
+         status == SCRU128_GENERATOR_STATUS_TIMESTAMP_INC);
+  assert(scru128_compare(prev, curr) < 0);
+  assert(memcmp(prev, curr, SCRU128_LEN) < 0);
+}
+
+/** Generates increasing IDs even with decreasing or constant timestamp */
+void test_decreasing_or_constant_timestamp_or_abort(void) {
+  Scru128Generator g;
+  uint8_t prev[SCRU128_LEN], curr[SCRU128_LEN];
+
+  uint64_t ts = 0x0123456789ab;
+  scru128_generator_init(&g);
+  int status =
+      scru128_generate_or_abort_core(&g, prev, ts, &arc4random_mock, 10000);
+  assert(status == SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
+  assert(scru128_timestamp(prev) == ts);
+
+  for (uint64_t i = 0; i < 100000; i++) {
+    status = scru128_generate_or_abort_core(
+        &g, curr, ts - (i < 9998 ? i : 9998), &arc4random_mock, 10000);
+    assert(status == SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
+           status == SCRU128_GENERATOR_STATUS_COUNTER_HI_INC ||
+           status == SCRU128_GENERATOR_STATUS_TIMESTAMP_INC);
+    assert(scru128_compare(prev, curr) < 0);
+    assert(memcmp(prev, curr, SCRU128_LEN) < 0);
+    memcpy(prev, curr, SCRU128_LEN);
+  }
+  assert(scru128_timestamp(prev) >= ts);
+}
+
+/** Returns error if timestamp goes backwards by ten seconds */
+void test_timestamp_rollback_or_abort(void) {
+  Scru128Generator g;
+  uint8_t prev[SCRU128_LEN], curr[SCRU128_LEN];
+
+  uint64_t ts = 0x0123456789ab;
+  scru128_generator_init(&g);
+  int status =
+      scru128_generate_or_abort_core(&g, prev, ts, &arc4random_mock, 10000);
   assert(status == SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
   assert(scru128_timestamp(prev) == ts);
 
   memcpy(curr, prev, SCRU128_LEN);
-  status = scru128_generate_core_no_rewind(&g, curr, ts - 10000,
-                                           &arc4random_mock, 10000);
-  assert(status == SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK);
+  status = scru128_generate_or_abort_core(&g, curr, ts - 10000,
+                                          &arc4random_mock, 10000);
+  assert(status == SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT);
   assert(scru128_compare(prev, curr) == 0);
   assert(memcmp(prev, curr, SCRU128_LEN) == 0); // untouched
 
-  status = scru128_generate_core_no_rewind(&g, curr, ts - 10001,
-                                           &arc4random_mock, 10000);
-  assert(status == SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK);
+  status = scru128_generate_or_abort_core(&g, curr, ts - 10001,
+                                          &arc4random_mock, 10000);
+  assert(status == SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT);
   assert(scru128_compare(prev, curr) == 0);
   assert(memcmp(prev, curr, SCRU128_LEN) == 0); // untouched
 }
@@ -325,9 +329,9 @@ int main(void) {
   run_test(test_string_validation);
   run_test(test_symmetric_converters);
   run_test(test_comparison_methods);
-  run_test(test_decreasing_or_constant_timestamp);
-  run_test(test_timestamp_rollback);
-  run_test(test_decreasing_or_constant_timestamp_no_rewind);
-  run_test(test_timestamp_rollback_no_rewind);
+  run_test(test_decreasing_or_constant_timestamp_or_reset);
+  run_test(test_timestamp_rollback_or_reset);
+  run_test(test_decreasing_or_constant_timestamp_or_abort);
+  run_test(test_timestamp_rollback_or_abort);
   return 0;
 }

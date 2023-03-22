@@ -49,9 +49,9 @@ See [SCRU128 Specification] for details.
 
 `scru128.h` does not provide a concrete implementation of `scru128_generate()`,
 so users have to implement it to enable high-level generator APIs (if necessary)
-by integrating the real-time clock and random number generator available in the
-system and the `scru128_generate_core()` function. Here is a quick example for
-the BSD-like systems:
+by integrating the low-level generator primitives provided by the library with
+the real-time clock and random number generator available in the system. Here is
+a quick example for the BSD-like systems:
 
 ```c
 #include "scru128.h"
@@ -66,7 +66,8 @@ int scru128_generate(Scru128Generator *g, uint8_t *id_out) {
     return SCRU128_GENERATOR_STATUS_ERROR;
   }
   uint64_t timestamp = (uint64_t)tp.tv_sec * 1000 + tp.tv_nsec / 1000000;
-  return scru128_generate_core(g, id_out, timestamp, &arc4random);
+  return scru128_generate_or_reset_core(g, id_out, timestamp, &arc4random,
+                                        10000);
 }
 ```
 

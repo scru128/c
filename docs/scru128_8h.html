@@ -86,14 +86,21 @@ Macros</h2></td></tr>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>SCRU128_GENERATOR_STATUS_TIMESTAMP_INC</b>&#160;&#160;&#160;(4)</td></tr>
 <tr class="memdesc:a54b7a0be0765e68d1632825c075c0945"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates that the previous <code>timestamp</code> was incremented because <code>counter_hi</code> reached its maximum value. <br /></td></tr>
 <tr class="separator:a54b7a0be0765e68d1632825c075c0945"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a09e9b3a3cab089d543af0b01079b800e"><td class="memItemLeft" align="right" valign="top"><a id="a09e9b3a3cab089d543af0b01079b800e" name="a09e9b3a3cab089d543af0b01079b800e"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK</b>&#160;&#160;&#160;(5)</td></tr>
-<tr class="memdesc:a09e9b3a3cab089d543af0b01079b800e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates that the monotonic order of generated IDs was broken because the latest <code>timestamp</code> was less than the previous one by ten seconds or more. <br /></td></tr>
-<tr class="separator:a09e9b3a3cab089d543af0b01079b800e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5949a14147cca1da27b185ba1aeb8325"><td class="memItemLeft" align="right" valign="top"><a id="a5949a14147cca1da27b185ba1aeb8325" name="a5949a14147cca1da27b185ba1aeb8325"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>SCRU128_GENERATOR_STATUS_ROLLBACK_RESET</b>&#160;&#160;&#160;(5)</td></tr>
+<tr class="memdesc:a5949a14147cca1da27b185ba1aeb8325"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates that the generator was reinitialized and the monotonic order of generated IDs was broken because the latest <code>timestamp</code> was significantly smaller than the previous one. <br /></td></tr>
+<tr class="separator:a5949a14147cca1da27b185ba1aeb8325"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a663030cd94ef3f3bb0d19beb090009d4"><td class="memItemLeft" align="right" valign="top"><a id="a663030cd94ef3f3bb0d19beb090009d4" name="a663030cd94ef3f3bb0d19beb090009d4"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>SCRU128_GENERATOR_STATUS_ERROR</b>&#160;&#160;&#160;(-1)</td></tr>
 <tr class="memdesc:a663030cd94ef3f3bb0d19beb090009d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates that the previous generation failed. <br /></td></tr>
 <tr class="separator:a663030cd94ef3f3bb0d19beb090009d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2265cd9e73e260fdf7cb26a48110d4a8"><td class="memItemLeft" align="right" valign="top"><a id="a2265cd9e73e260fdf7cb26a48110d4a8" name="a2265cd9e73e260fdf7cb26a48110d4a8"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT</b>&#160;&#160;&#160;(-2)</td></tr>
+<tr class="memdesc:a2265cd9e73e260fdf7cb26a48110d4a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates that the previous generation was aborted because the latest <code>timestamp</code> was significantly smaller than the previous one. <br /></td></tr>
+<tr class="separator:a2265cd9e73e260fdf7cb26a48110d4a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09e9b3a3cab089d543af0b01079b800e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a09e9b3a3cab089d543af0b01079b800e">SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK</a>&#160;&#160;&#160;(5)</td></tr>
+<tr class="memdesc:a09e9b3a3cab089d543af0b01079b800e"><td class="mdescLeft">&#160;</td><td class="mdescRight">A deprecated synonym for <code>SCRU128_GENERATOR_STATUS_ROLLBACK_RESET</code>.  <br /></td></tr>
+<tr class="separator:a09e9b3a3cab089d543af0b01079b800e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -138,11 +145,15 @@ Functions</h2></td></tr>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_generator_init</b> (<a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *g)</td></tr>
 <tr class="memdesc:ae9199458267b62b00d66c439313b59da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a generator struct <code>g</code>. <br /></td></tr>
 <tr class="separator:ae9199458267b62b00d66c439313b59da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9d00186231be4fc79b8083979ba0e708"><td class="memItemLeft" align="right" valign="top">static int8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a9d00186231be4fc79b8083979ba0e708">scru128_generate_core_no_rewind</a> (<a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *g, uint8_t *id_out, uint64_t timestamp, uint32_t(*arc4random)(void), uint64_t rollback_allowance)</td></tr>
-<tr class="memdesc:a9d00186231be4fc79b8083979ba0e708"><td class="mdescLeft">&#160;</td><td class="mdescRight">Experimental: Generates a new SCRU128 ID with the given <code>timestamp</code> and random number generator, guaranteeing the monotonic order of generated IDs despite a significant timestamp rollback.  <br /></td></tr>
-<tr class="separator:a9d00186231be4fc79b8083979ba0e708"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aede4322202cd4e76b632a0d384e29c33"><td class="memItemLeft" align="right" valign="top">static int8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#aede4322202cd4e76b632a0d384e29c33">scru128_generate_or_abort_core</a> (<a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *g, uint8_t *id_out, uint64_t timestamp, uint32_t(*arc4random)(void), uint64_t rollback_allowance)</td></tr>
+<tr class="memdesc:aede4322202cd4e76b632a0d384e29c33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a new SCRU128 ID with the given <code>timestamp</code> and random number generator, or returns an error upon significant timestamp rollback.  <br /></td></tr>
+<tr class="separator:aede4322202cd4e76b632a0d384e29c33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f4024ec2d61628607e44ce053413b23"><td class="memItemLeft" align="right" valign="top">static int8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a3f4024ec2d61628607e44ce053413b23">scru128_generate_or_reset_core</a> (<a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *g, uint8_t *id_out, uint64_t timestamp, uint32_t(*arc4random)(void), uint64_t rollback_allowance)</td></tr>
+<tr class="memdesc:a3f4024ec2d61628607e44ce053413b23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a new SCRU128 ID with the given <code>timestamp</code> and random number generator, or resets the generator upon significant timestamp rollback.  <br /></td></tr>
+<tr class="separator:a3f4024ec2d61628607e44ce053413b23"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a340b6579f50b74f8b135fb4f9beef648"><td class="memItemLeft" align="right" valign="top">static int8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a340b6579f50b74f8b135fb4f9beef648">scru128_generate_core</a> (<a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *g, uint8_t *id_out, uint64_t timestamp, uint32_t(*arc4random)(void))</td></tr>
-<tr class="memdesc:a340b6579f50b74f8b135fb4f9beef648"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a new SCRU128 ID with the given <code>timestamp</code> and random number generator.  <br /></td></tr>
+<tr class="memdesc:a340b6579f50b74f8b135fb4f9beef648"><td class="mdescLeft">&#160;</td><td class="mdescRight">A deprecated synonym for <code>scru128_generate_or_reset_core(g, id_out,
+timestamp, arc4random, 10000)</code>.  <br /></td></tr>
 <tr class="separator:a340b6579f50b74f8b135fb4f9beef648"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">High-level generator APIs that require platform integration</div></td></tr>
 <tr class="memitem:a03dac9a0d491fb675ff74e42ca52e6e6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="scru128_8h.html#a03dac9a0d491fb675ff74e42ca52e6e6">scru128_generate</a> (<a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *g, uint8_t *id_out)</td></tr>
@@ -154,10 +165,28 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_genera
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>SCRU128: Sortable, Clock and Random number-based Unique identifier. </p>
-<dl class="section version"><dt>Version</dt><dd>v0.3.0 </dd></dl>
+<dl class="section version"><dt>Version</dt><dd>v0.3.2 </dd></dl>
 <dl class="section copyright"><dt>Copyright</dt><dd>Licensed under the Apache License, Version 2.0 </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a href="https://github.com/scru128/c">https://github.com/scru128/c</a> </dd></dl>
-</div><h2 class="groupheader">Typedef Documentation</h2>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a09e9b3a3cab089d543af0b01079b800e" name="a09e9b3a3cab089d543af0b01079b800e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a09e9b3a3cab089d543af0b01079b800e">&#9670;&#160;</a></span>SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK&#160;&#160;&#160;(5)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>A deprecated synonym for <code>SCRU128_GENERATOR_STATUS_ROLLBACK_RESET</code>. </p>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000001">Deprecated:</a></b></dt><dd>Use <code>SCRU128_GENERATOR_STATUS_ROLLBACK_RESET</code> instead. </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Typedef Documentation</h2>
 <a id="ab64da465f3c4c07d7af6b04b7dd19c6b" name="ab64da465f3c4c07d7af6b04b7dd19c6b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab64da465f3c4c07d7af6b04b7dd19c6b">&#9670;&#160;</a></span>Scru128Generator</h2>
 
@@ -516,7 +545,7 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_genera
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>One of <code>SCRU128_GENERATOR_STATUS_*</code> codes that describes the characteristics of generated ID. A negative return code reports an error. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>This single-file library does not provide a concrete implementation of this function, so users have to implement it to enable high-level generator APIs (if necessary) by integrating the real-time clock and random number generator available in the system and the <code><a class="el" href="scru128_8h.html#a340b6579f50b74f8b135fb4f9beef648" title="Generates a new SCRU128 ID with the given timestamp and random number generator.">scru128_generate_core()</a></code> function. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This single-file library does not provide a concrete implementation of this function, so users have to implement it to enable high-level generator APIs (if necessary) by integrating the low-level generator primitives provided by the library with the real-time clock and random number generator available in the system. </dd></dl>
 <dl class="section attention"><dt>Attention</dt><dd>The thread-safety of this function is implementation-dependent, but it is usually NOT thread-safe. The generator <code>g</code> should be protected from concurrent accesses using a mutex or other synchronization mechanism to avoid race conditions. </dd></dl>
 
 </div>
@@ -567,24 +596,15 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_genera
 </table>
 </div><div class="memdoc">
 
-<p>Generates a new SCRU128 ID with the given <code>timestamp</code> and random number generator. </p>
-<p>This function returns monotonically increasing IDs unless a <code>timestamp</code> provided is significantly (by ten seconds or more) smaller than the one embedded in the immediately preceding ID. If such a significant clock rollback is detected, this function rewinds the generator state and returns a new ID based on the given argument.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">g</td><td>A generator state object used to generate an ID. </td></tr>
-    <tr><td class="paramname">id_out</td><td>A 16-byte byte array where the generated SCRU128 ID is stored. </td></tr>
-    <tr><td class="paramname">timestamp</td><td>A 48-bit <code>timestamp</code> field value. </td></tr>
-    <tr><td class="paramname">arc4random</td><td>A function pointer to <code>arc4random()</code> or a compatible function that returns a (cryptographically strong) random number in the range of 32-bit unsigned integer. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>One of <code>SCRU128_GENERATOR_STATUS_*</code> codes that describes the characteristics of generated ID. A negative return code reports an error. </dd></dl>
-<dl class="section attention"><dt>Attention</dt><dd>This function is NOT thread-safe. The generator <code>g</code> should be protected from concurrent accesses using a mutex or other synchronization mechanism to avoid race conditions. </dd></dl>
+<p>A deprecated synonym for <code>scru128_generate_or_reset_core(g, id_out,
+timestamp, arc4random, 10000)</code>. </p>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000002">Deprecated:</a></b></dt><dd>Use <code>scru128_generate_or_reset_core(g, id_out, timestamp,
+arc4random, 10000)</code> instead. </dd></dl>
 
 </div>
 </div>
-<a id="a9d00186231be4fc79b8083979ba0e708" name="a9d00186231be4fc79b8083979ba0e708"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9d00186231be4fc79b8083979ba0e708">&#9670;&#160;</a></span>scru128_generate_core_no_rewind()</h2>
+<a id="aede4322202cd4e76b632a0d384e29c33" name="aede4322202cd4e76b632a0d384e29c33"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aede4322202cd4e76b632a0d384e29c33">&#9670;&#160;</a></span>scru128_generate_or_abort_core()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -593,7 +613,7 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_genera
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static int8_t scru128_generate_core_no_rewind </td>
+          <td class="memname">static int8_t scru128_generate_or_abort_core </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *&#160;</td>
           <td class="paramname"><em>g</em>, </td>
@@ -635,8 +655,79 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>scru128_genera
 </table>
 </div><div class="memdoc">
 
-<p>Experimental: Generates a new SCRU128 ID with the given <code>timestamp</code> and random number generator, guaranteeing the monotonic order of generated IDs despite a significant timestamp rollback. </p>
-<p>This function returns monotonically increasing IDs unless a <code>timestamp</code> provided is significantly (by <code>rollback_allowance</code> milliseconds or more) smaller than the one embedded in the immediately preceding ID. If such a significant clock rollback is detected, this function keeps the generator state and <code>id_out</code> untouched and returns <code>SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK</code>.</p>
+<p>Generates a new SCRU128 ID with the given <code>timestamp</code> and random number generator, or returns an error upon significant timestamp rollback. </p>
+<p>This function returns monotonically increasing IDs unless a <code>timestamp</code> provided is significantly (by <code>rollback_allowance</code> milliseconds or more) smaller than the one embedded in the immediately preceding ID. If such a significant clock rollback is detected, this function aborts and returns <code>SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT</code>.</p>
+<p>See <code><a class="el" href="scru128_8h.html#a3f4024ec2d61628607e44ce053413b23" title="Generates a new SCRU128 ID with the given timestamp and random number generator, or resets the genera...">scru128_generate_or_reset_core()</a></code> for the other mode of generation.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">g</td><td>A generator state object used to generate an ID. </td></tr>
+    <tr><td class="paramname">id_out</td><td>A 16-byte byte array where the generated SCRU128 ID is stored. </td></tr>
+    <tr><td class="paramname">timestamp</td><td>A 48-bit <code>timestamp</code> field value. </td></tr>
+    <tr><td class="paramname">arc4random</td><td>A function pointer to <code>arc4random()</code> or a compatible function that returns a (cryptographically strong) random number in the range of 32-bit unsigned integer. </td></tr>
+    <tr><td class="paramname">rollback_allowance</td><td>The amount of <code>timestamp</code> rollback that is considered significant. A suggested value is <code>10000</code> (milliseconds). </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>One of <code>SCRU128_GENERATOR_STATUS_*</code> codes that describes the characteristics of generated ID. A negative return code reports an error. </dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>This function is NOT thread-safe. The generator <code>g</code> should be protected from concurrent accesses using a mutex or other synchronization mechanism to avoid race conditions. </dd></dl>
+
+</div>
+</div>
+<a id="a3f4024ec2d61628607e44ce053413b23" name="a3f4024ec2d61628607e44ce053413b23"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f4024ec2d61628607e44ce053413b23">&#9670;&#160;</a></span>scru128_generate_or_reset_core()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int8_t scru128_generate_or_reset_core </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="struct_scru128_generator.html">Scru128Generator</a> *&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>id_out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>timestamp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t(*)(void)&#160;</td>
+          <td class="paramname"><em>arc4random</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>rollback_allowance</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Generates a new SCRU128 ID with the given <code>timestamp</code> and random number generator, or resets the generator upon significant timestamp rollback. </p>
+<p>This function returns monotonically increasing IDs unless a <code>timestamp</code> provided is significantly (by <code>rollback_allowance</code> milliseconds or more) smaller than the one embedded in the immediately preceding ID. If such a significant clock rollback is detected, this function resets the generator and returns a new ID based on the given <code>timestamp</code>.</p>
+<p>See <code><a class="el" href="scru128_8h.html#aede4322202cd4e76b632a0d384e29c33" title="Generates a new SCRU128 ID with the given timestamp and random number generator, or returns an error ...">scru128_generate_or_abort_core()</a></code> for the other mode of generation.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">g</td><td>A generator state object used to generate an ID. </td></tr>
