@@ -213,7 +213,7 @@ void test_comparison_methods(void) {
 uint32_t arc4random_mock(void) { return 0x42; }
 
 /** Generates increasing IDs even with decreasing or constant timestamp */
-void test_decreasing_or_constant_timestamp_or_reset(void) {
+void test_decreasing_or_constant_timestamp_reset(void) {
   Scru128Generator g;
   uint8_t prev[SCRU128_LEN], curr[SCRU128_LEN];
 
@@ -237,8 +237,8 @@ void test_decreasing_or_constant_timestamp_or_reset(void) {
   assert(scru128_timestamp(prev) >= ts);
 }
 
-/** Breaks increasing order of IDs if timestamp goes backwards by ten seconds */
-void test_timestamp_rollback_or_reset(void) {
+/** Breaks increasing order of IDs if timestamp goes backwards a lot */
+void test_timestamp_rollback_reset(void) {
   Scru128Generator g;
   uint8_t prev[SCRU128_LEN], curr[SCRU128_LEN];
 
@@ -267,7 +267,7 @@ void test_timestamp_rollback_or_reset(void) {
 }
 
 /** Generates increasing IDs even with decreasing or constant timestamp */
-void test_decreasing_or_constant_timestamp_or_abort(void) {
+void test_decreasing_or_constant_timestamp_abort(void) {
   Scru128Generator g;
   uint8_t prev[SCRU128_LEN], curr[SCRU128_LEN];
 
@@ -291,8 +291,8 @@ void test_decreasing_or_constant_timestamp_or_abort(void) {
   assert(scru128_timestamp(prev) >= ts);
 }
 
-/** Returns error if timestamp goes backwards by ten seconds */
-void test_timestamp_rollback_or_abort(void) {
+/** Returns error if timestamp goes backwards a lot */
+void test_timestamp_rollback_abort(void) {
   Scru128Generator g;
   uint8_t prev[SCRU128_LEN], curr[SCRU128_LEN];
 
@@ -329,9 +329,9 @@ int main(void) {
   run_test(test_string_validation);
   run_test(test_symmetric_converters);
   run_test(test_comparison_methods);
-  run_test(test_decreasing_or_constant_timestamp_or_reset);
-  run_test(test_timestamp_rollback_or_reset);
-  run_test(test_decreasing_or_constant_timestamp_or_abort);
-  run_test(test_timestamp_rollback_or_abort);
+  run_test(test_decreasing_or_constant_timestamp_reset);
+  run_test(test_timestamp_rollback_reset);
+  run_test(test_decreasing_or_constant_timestamp_abort);
+  run_test(test_timestamp_rollback_abort);
   return 0;
 }
