@@ -85,13 +85,6 @@
  */
 #define SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT (-2)
 
-/**
- * A deprecated synonym for `SCRU128_GENERATOR_STATUS_ROLLBACK_RESET`.
- *
- * @deprecated Use `SCRU128_GENERATOR_STATUS_ROLLBACK_RESET` instead.
- */
-#define SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK (5)
-
 /** @} */
 
 /**
@@ -484,20 +477,6 @@ scru128_generate_or_reset_core(Scru128Generator *g, uint8_t *id_out,
     status = SCRU128_GENERATOR_STATUS_ROLLBACK_RESET;
   }
   return status;
-}
-
-/**
- * A deprecated synonym for `scru128_generate_or_reset_core(g, id_out,
- * timestamp, arc4random, 10000)`.
- *
- * @deprecated Use `scru128_generate_or_reset_core(g, id_out, timestamp,
- * arc4random, 10000)` instead.
- */
-static inline int8_t scru128_generate_core(Scru128Generator *g, uint8_t *id_out,
-                                           uint64_t timestamp,
-                                           uint32_t (*arc4random)(void)) {
-  return scru128_generate_or_reset_core(g, id_out, timestamp, arc4random,
-                                        10000);
 }
 
 /** @} */
