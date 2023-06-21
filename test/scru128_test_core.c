@@ -13,38 +13,38 @@ static const uint32_t MAX_UINT32 = UINT32_MAX;
 
 static const int n_generated_strings = 64;
 static const char generated_strings[64][TEXT_BUFFER_SIZE] = {
-    "036ZI0H673ABDQNMSCASJW0ZR", "036ZI0H673ABDQNMSCE4EVOP9",
-    "036ZI0H673ABDQNMSCFH57CFG", "036ZI0H673ABDQNMSCI35E14H",
-    "036ZI0H673ABDQNMSCK1YRBZ6", "036ZI0H673ABDQNMSCLJIF809",
-    "036ZI0H673ABDQNMSCOAATXNY", "036ZI0H673ABDQNMSCP02LHX5",
-    "036ZI0H673ABDQNMSCQM37INM", "036ZI0H673ABDQNMSCSWR3TY1",
-    "036ZI0H673ABDQNMSCUV3USZM", "036ZI0H673ABDQNMSCWSC9917",
-    "036ZI0H673ABDQNMSCZWS9JXX", "036ZI0H678R6GIB1NU7O9TO20",
-    "036ZI0H678R6GIB1NU826PVXQ", "036ZI0H678R6GIB1NUA8AOWO0",
-    "036ZI0H678R6GIB1NUC0DLSRK", "036ZI0H678R6GIB1NUFJUP6NI",
-    "036ZI0H678R6GIB1NUG0EBTQP", "036ZI0H678R6GIB1NUIB9H8Z9",
-    "036ZI0H678R6GIB1NUK2KAI61", "036ZI0H678R6GIB1NUNR24DIB",
-    "036ZI0H678R6GIB1NUPOMDW59", "036ZI0H678R6GIB1NUQPTH1LM",
-    "036ZI0H678R6GIB1NUTEDYYW3", "036ZI0H678R6GIB1NUUNYMFL3",
-    "036ZI0H678R6GIB1NUWCPDBF4", "036ZI0H678R6GIB1NUXZ94TMH",
-    "036ZI0H678R6GIB1NUZRDQ2TN", "036ZI0H678R6GIB1NV2OCJN08",
-    "036ZI0H678R6GIB1NV52WLTUQ", "036ZI0H678R6GIB1NV5Y34YHO",
-    "036ZI0H678R6GIB1NV8DDLIO7", "036ZI0H678R6GIB1NV9IHT0CZ",
-    "036ZI0H678R6GIB1NVBPNXENU", "036ZI0H678R6GIB1NVF2BGVEL",
-    "036ZI0H678R6GIB1NVGDP6ZXU", "036ZI0H678R6GIB1NVIHJ5LV9",
-    "036ZI0H678R6GIB1NVK6H9ATK", "036ZI0H678R6GIB1NVMQ9CR3Y",
-    "036ZI0H678R6GIB1NVNJ0XHQU", "036ZI0H678R6GIB1NVQK67RDY",
-    "036ZI0H678R6GIB1NVRL1YEAA", "036ZI0H678R6GIB1NVTWZ18QE",
-    "036ZI0H678R6GIB1NVV7TIYOS", "036ZI0H678R6GIB1NVXCNCBVT",
-    "036ZI0H678R6GIB1NW0RX7126", "036ZI0H678R6GIB1NW2NBC6Y6",
-    "036ZI0H678R6GIB1NW34FDLV3", "036ZI0H678R6GIB1NW5RAFLPG",
-    "036ZI0H678R6GIB1NW7M3OMBT", "036ZI0H678R6GIB1NWA06BDYM",
-    "036ZI0H678R6GIB1NWBAOGE5X", "036ZI0H678R6GIB1NWECKNIQZ",
-    "036ZI0H678R6GIB1NWF3TOSNI", "036ZI0H678R6GIB1NWHSDQGJ5",
-    "036ZI0H678R6GIB1NWKIWQ70L", "036ZI0H678R6GIB1NWMGX8X8U",
-    "036ZI0H678R6GIB1NWNBB89PG", "036ZI0H678R6GIB1NWQH7SO5B",
-    "036ZI0H678R6GIB1NWRRH9RO8", "036ZI0H678R6GIB1NWTX3DRDS",
-    "036ZI0H678R6GIB1NWWKXIDVM", "036ZI0H678R6GIB1NWX9NXGKJ",
+    "036zi0h673abdqnmscasjw0zr", "036zi0h673abdqnmsce4evop9",
+    "036zi0h673abdqnmscfh57cfg", "036zi0h673abdqnmsci35e14h",
+    "036zi0h673abdqnmsck1yrbz6", "036zi0h673abdqnmscljif809",
+    "036zi0h673abdqnmscoaatxny", "036zi0h673abdqnmscp02lhx5",
+    "036zi0h673abdqnmscqm37inm", "036zi0h673abdqnmscswr3ty1",
+    "036zi0h673abdqnmscuv3uszm", "036zi0h673abdqnmscwsc9917",
+    "036zi0h673abdqnmsczws9jxx", "036zi0h678r6gib1nu7o9to20",
+    "036zi0h678r6gib1nu826pvxq", "036zi0h678r6gib1nua8aowo0",
+    "036zi0h678r6gib1nuc0dlsrk", "036zi0h678r6gib1nufjup6ni",
+    "036zi0h678r6gib1nug0ebtqp", "036zi0h678r6gib1nuib9h8z9",
+    "036zi0h678r6gib1nuk2kai61", "036zi0h678r6gib1nunr24dib",
+    "036zi0h678r6gib1nupomdw59", "036zi0h678r6gib1nuqpth1lm",
+    "036zi0h678r6gib1nutedyyw3", "036zi0h678r6gib1nuunymfl3",
+    "036zi0h678r6gib1nuwcpdbf4", "036zi0h678r6gib1nuxz94tmh",
+    "036zi0h678r6gib1nuzrdq2tn", "036zi0h678r6gib1nv2ocjn08",
+    "036zi0h678r6gib1nv52wltuq", "036zi0h678r6gib1nv5y34yho",
+    "036zi0h678r6gib1nv8ddlio7", "036zi0h678r6gib1nv9iht0cz",
+    "036zi0h678r6gib1nvbpnxenu", "036zi0h678r6gib1nvf2bgvel",
+    "036zi0h678r6gib1nvgdp6zxu", "036zi0h678r6gib1nvihj5lv9",
+    "036zi0h678r6gib1nvk6h9atk", "036zi0h678r6gib1nvmq9cr3y",
+    "036zi0h678r6gib1nvnj0xhqu", "036zi0h678r6gib1nvqk67rdy",
+    "036zi0h678r6gib1nvrl1yeaa", "036zi0h678r6gib1nvtwz18qe",
+    "036zi0h678r6gib1nvv7tiyos", "036zi0h678r6gib1nvxcncbvt",
+    "036zi0h678r6gib1nw0rx7126", "036zi0h678r6gib1nw2nbc6y6",
+    "036zi0h678r6gib1nw34fdlv3", "036zi0h678r6gib1nw5raflpg",
+    "036zi0h678r6gib1nw7m3ombt", "036zi0h678r6gib1nwa06bdym",
+    "036zi0h678r6gib1nwbaoge5x", "036zi0h678r6gib1nweckniqz",
+    "036zi0h678r6gib1nwf3tosni", "036zi0h678r6gib1nwhsdqgj5",
+    "036zi0h678r6gib1nwkiwq70l", "036zi0h678r6gib1nwmgx8x8u",
+    "036zi0h678r6gib1nwnbb89pg", "036zi0h678r6gib1nwqh7so5b",
+    "036zi0h678r6gib1nwrrh9ro8", "036zi0h678r6gib1nwtx3drds",
+    "036zi0h678r6gib1nwwkxidvm", "036zi0h678r6gib1nwx9nxgkj",
 };
 
 /** Encodes and decodes prepared cases correctly */
@@ -94,7 +94,7 @@ void test_encode_decode(void) {
     scru128_to_str(from_fields, text_buffer);
     assert(strlen(text_buffer) == text_len);
     for (size_t j = 0; j < text_len; j++) {
-      assert(text_buffer[j] == toupper(e->text[j]));
+      assert(text_buffer[j] == tolower(e->text[j]));
     }
 
     assert(scru128_timestamp(from_string) == e->timestamp);
@@ -104,7 +104,7 @@ void test_encode_decode(void) {
     scru128_to_str(from_string, text_buffer);
     assert(strlen(text_buffer) == text_len);
     for (size_t j = 0; j < text_len; j++) {
-      assert(text_buffer[j] == toupper(e->text[j]));
+      assert(text_buffer[j] == tolower(e->text[j]));
     }
   }
 }
@@ -113,18 +113,18 @@ void test_encode_decode(void) {
 void test_string_validation(void) {
   char cases[][TEXT_BUFFER_SIZE] = {
       "",
-      " 036Z8PUQ4TSXSIGK6O19Y164Q",
-      "036Z8PUQ54QNY1VQ3HCBRKWEB ",
-      " 036Z8PUQ54QNY1VQ3HELIVWAX ",
-      "+036Z8PUQ54QNY1VQ3HFCV3SS0",
-      "-036Z8PUQ54QNY1VQ3HHY8U1CH",
-      "+36Z8PUQ54QNY1VQ3HJQ48D9P",
-      "-36Z8PUQ5A7J0TI08OZ6ZDRDY",
-      "036Z8PUQ5A7J0T_08P2CDZ28V",
-      "036Z8PU-5A7J0TI08P3OL8OOL",
-      "036Z8PUQ5A7J0TI08P4J 6CYA",
-      "F5LXX1ZZ5PNORYNQGLHZMSP34",
-      "ZZZZZZZZZZZZZZZZZZZZZZZZZ",
+      " 036z8puq4tsxsigk6o19y164q",
+      "036z8puq54qny1vq3hcbrkweb ",
+      " 036z8puq54qny1vq3helivwax ",
+      "+036z8puq54qny1vq3hfcv3ss0",
+      "-036z8puq54qny1vq3hhy8u1ch",
+      "+36z8puq54qny1vq3hjq48d9p",
+      "-36z8puq5a7j0ti08oz6zdrdy",
+      "036z8puq5a7j0t_08p2cdz28v",
+      "036z8pu-5a7j0ti08p3ol8ool",
+      "036z8puq5a7j0ti08p4j 6cya",
+      "f5lxx1zz5pnorynqglhzmsp34",
+      "zzzzzzzzzzzzzzzzzzzzzzzzz",
   };
   const int n_cases = sizeof(cases) / sizeof(cases[0]);
 

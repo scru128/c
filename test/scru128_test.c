@@ -22,7 +22,7 @@ void test_format(void) {
     char *e = samples[i];
     assert(strlen(e) == 25);
     for (int j = 0; j < 25; j++) {
-      assert(('0' <= e[j] && e[j] <= '9') || ('A' <= e[j] && e[j] <= 'Z'));
+      assert(('0' <= e[j] && e[j] <= '9') || ('a' <= e[j] && e[j] <= 'z'));
     }
   }
 }

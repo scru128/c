@@ -3,7 +3,7 @@
  *
  * SCRU128: Sortable, Clock and Random number-based Unique identifier
  *
- * @version   v0.3.4
+ * @version   v0.4.0-rc.1
  * @copyright Licensed under the Apache License, Version 2.0
  * @see       https://github.com/scru128/c
  */
@@ -84,13 +84,6 @@
  * `timestamp` was significantly smaller than the previous one.
  */
 #define SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT (-2)
-
-/**
- * A deprecated synonym for `SCRU128_GENERATOR_STATUS_ROLLBACK_RESET`.
- *
- * @deprecated Use `SCRU128_GENERATOR_STATUS_ROLLBACK_RESET` instead.
- */
-#define SCRU128_GENERATOR_STATUS_CLOCK_ROLLBACK (5)
 
 /** @} */
 
@@ -302,10 +295,10 @@ static inline uint32_t scru128_entropy(const uint8_t *id) {
  * @param id A 16-byte big-endian byte array that represents a SCRU128 ID.
  * @param str_out A 26-byte character array where the returned string is stored.
  * The returned array is a 26-byte null-terminated string consisting of 25
- * `[0-9A-Z]` characters and null.
+ * `[0-9a-z]` characters and null.
  */
 static inline void scru128_to_str(const uint8_t *id, char *str_out) {
-  static const char DIGITS[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  static const char DIGITS[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 
   // zero-fill 25 elements to use in process and 26th as NUL char
   for (int_fast8_t i = 0; i < 26; i++) {
@@ -486,20 +479,6 @@ scru128_generate_or_reset_core(Scru128Generator *g, uint8_t *id_out,
   return status;
 }
 
-/**
- * A deprecated synonym for `scru128_generate_or_reset_core(g, id_out,
- * timestamp, arc4random, 10000)`.
- *
- * @deprecated Use `scru128_generate_or_reset_core(g, id_out, timestamp,
- * arc4random, 10000)` instead.
- */
-static inline int8_t scru128_generate_core(Scru128Generator *g, uint8_t *id_out,
-                                           uint64_t timestamp,
-                                           uint32_t (*arc4random)(void)) {
-  return scru128_generate_or_reset_core(g, id_out, timestamp, arc4random,
-                                        10000);
-}
-
 /** @} */
 
 /**
@@ -534,7 +513,7 @@ int scru128_generate(Scru128Generator *g, uint8_t *id_out);
  * @param g A generator state object used to generate an ID.
  * @param str_out A 26-byte character array where the returned string is stored.
  * The returned array is a 26-byte null-terminated string consisting of 25
- * `[0-9A-Z]` characters and null.
+ * `[0-9a-z]` characters and null.
  * @return The return value of `scru128_generate()`.
  * @note Provide a concrete implementation of `scru128_generate()` to enable
  * this function.

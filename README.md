@@ -28,11 +28,11 @@ int main() {
   scru128_generate(&g, x);
   char text[SCRU128_STR_LEN]; // 26 bytes
   scru128_to_str(x, text);
-  puts(text); // e.g. "036Z951MHJIKZIK2GSL81GR7L"
+  puts(text); // e.g., "036z951mhjikzik2gsl81gr7l"
 
   // generate a textual representation directly
   scru128_generate_string(&g, text);
-  puts(text); // e.g. "036Z951MHZX67T63MQ9XE6Q0J"
+  puts(text); // e.g., "036z951mhzx67t63mq9xe6q0j"
 
   return 0;
 }
