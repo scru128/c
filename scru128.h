@@ -3,7 +3,7 @@
  *
  * SCRU128: Sortable, Clock and Random number-based Unique identifier
  *
- * @version   v0.4.0-rc.1
+ * @version   v0.4.1
  * @copyright Licensed under the Apache License, Version 2.0
  * @see       https://github.com/scru128/c
  */
