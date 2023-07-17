@@ -210,7 +210,15 @@ void test_comparison_methods(void) {
   }
 }
 
-uint32_t arc4random_mock(void) { return 0x42; }
+static uint32_t arc4random_mock_state = 0x42;
+
+/** A naive xorshift random number generator */
+uint32_t arc4random_mock(void) {
+  arc4random_mock_state ^= arc4random_mock_state << 3;
+  arc4random_mock_state ^= arc4random_mock_state >> 13;
+  arc4random_mock_state ^= arc4random_mock_state << 7;
+  return arc4random_mock_state;
+}
 
 /** Generates increasing IDs even with decreasing or constant timestamp */
 void test_decreasing_or_constant_timestamp_reset(void) {
@@ -226,7 +234,7 @@ void test_decreasing_or_constant_timestamp_reset(void) {
 
   for (uint64_t i = 0; i < 100000; i++) {
     status = scru128_generate_or_reset_core(
-        &g, curr, ts - (i < 9998 ? i : 9998), &arc4random_mock, 10000);
+        &g, curr, ts - (i < 9999 ? i : 9999), &arc4random_mock, 10000);
     assert(status == SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
            status == SCRU128_GENERATOR_STATUS_COUNTER_HI_INC ||
            status == SCRU128_GENERATOR_STATUS_TIMESTAMP_INC);
@@ -251,13 +259,22 @@ void test_timestamp_rollback_reset(void) {
 
   status = scru128_generate_or_reset_core(&g, curr, ts - 10000,
                                           &arc4random_mock, 10000);
-  assert(status == SCRU128_GENERATOR_STATUS_ROLLBACK_RESET);
-  assert(scru128_compare(prev, curr) > 0);
-  assert(memcmp(prev, curr, SCRU128_LEN) > 0);
-  assert(scru128_timestamp(curr) == ts - 10000);
+  assert(status == SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
+         status == SCRU128_GENERATOR_STATUS_COUNTER_HI_INC ||
+         status == SCRU128_GENERATOR_STATUS_TIMESTAMP_INC);
+  assert(scru128_compare(prev, curr) < 0);
+  assert(memcmp(prev, curr, SCRU128_LEN) < 0);
 
   memcpy(prev, curr, SCRU128_LEN);
   status = scru128_generate_or_reset_core(&g, curr, ts - 10001,
+                                          &arc4random_mock, 10000);
+  assert(status == SCRU128_GENERATOR_STATUS_ROLLBACK_RESET);
+  assert(scru128_compare(prev, curr) > 0);
+  assert(memcmp(prev, curr, SCRU128_LEN) > 0);
+  assert(scru128_timestamp(curr) == ts - 10001);
+
+  memcpy(prev, curr, SCRU128_LEN);
+  status = scru128_generate_or_reset_core(&g, curr, ts - 10002,
                                           &arc4random_mock, 10000);
   assert(status == SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
          status == SCRU128_GENERATOR_STATUS_COUNTER_HI_INC ||
@@ -280,7 +297,7 @@ void test_decreasing_or_constant_timestamp_abort(void) {
 
   for (uint64_t i = 0; i < 100000; i++) {
     status = scru128_generate_or_abort_core(
-        &g, curr, ts - (i < 9998 ? i : 9998), &arc4random_mock, 10000);
+        &g, curr, ts - (i < 9999 ? i : 9999), &arc4random_mock, 10000);
     assert(status == SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
            status == SCRU128_GENERATOR_STATUS_COUNTER_HI_INC ||
            status == SCRU128_GENERATOR_STATUS_TIMESTAMP_INC);
@@ -303,14 +320,22 @@ void test_timestamp_rollback_abort(void) {
   assert(status == SCRU128_GENERATOR_STATUS_NEW_TIMESTAMP);
   assert(scru128_timestamp(prev) == ts);
 
-  memcpy(curr, prev, SCRU128_LEN);
   status = scru128_generate_or_abort_core(&g, curr, ts - 10000,
+                                          &arc4random_mock, 10000);
+  assert(status == SCRU128_GENERATOR_STATUS_COUNTER_LO_INC ||
+         status == SCRU128_GENERATOR_STATUS_COUNTER_HI_INC ||
+         status == SCRU128_GENERATOR_STATUS_TIMESTAMP_INC);
+  assert(scru128_compare(prev, curr) < 0);
+  assert(memcmp(prev, curr, SCRU128_LEN) < 0);
+
+  memcpy(curr, prev, SCRU128_LEN);
+  status = scru128_generate_or_abort_core(&g, curr, ts - 10001,
                                           &arc4random_mock, 10000);
   assert(status == SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT);
   assert(scru128_compare(prev, curr) == 0);
   assert(memcmp(prev, curr, SCRU128_LEN) == 0); // untouched
 
-  status = scru128_generate_or_abort_core(&g, curr, ts - 10001,
+  status = scru128_generate_or_abort_core(&g, curr, ts - 10002,
                                           &arc4random_mock, 10000);
   assert(status == SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT);
   assert(scru128_compare(prev, curr) == 0);
@@ -324,6 +349,9 @@ void test_timestamp_rollback_abort(void) {
   } while (0)
 
 int main(void) {
+  int addr_as_seed;
+  arc4random_mock_state = (uintptr_t)&addr_as_seed;
+
   printf("%s:\n", __FILE__);
   run_test(test_encode_decode);
   run_test(test_string_validation);

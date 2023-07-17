@@ -3,7 +3,7 @@
  *
  * SCRU128: Sortable, Clock and Random number-based Unique identifier
  *
- * @version   v0.4.1
+ * @version   v0.4.2
  * @copyright Licensed under the Apache License, Version 2.0
  * @see       https://github.com/scru128/c
  */
@@ -367,7 +367,7 @@ static inline void scru128_generator_init(Scru128Generator *g) {
  * generator, or returns an error upon significant timestamp rollback.
  *
  * This function returns monotonically increasing IDs unless a `timestamp`
- * provided is significantly (by `rollback_allowance` milliseconds or more)
+ * provided is significantly (by more than `rollback_allowance` milliseconds)
  * smaller than the one embedded in the immediately preceding ID. If such a
  * significant clock rollback is detected, this function aborts and returns
  * `SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT`.
@@ -402,7 +402,7 @@ scru128_generate_or_abort_core(Scru128Generator *g, uint8_t *id_out,
   if (timestamp > g->_timestamp) {
     g->_timestamp = timestamp;
     g->_counter_lo = (*arc4random)() & SCRU128_MAX_COUNTER_LO;
-  } else if (timestamp + rollback_allowance > g->_timestamp) {
+  } else if (timestamp + rollback_allowance >= g->_timestamp) {
     // go on with previous timestamp if new one is not much smaller
     g->_counter_lo++;
     status = SCRU128_GENERATOR_STATUS_COUNTER_LO_INC;
@@ -441,7 +441,7 @@ scru128_generate_or_abort_core(Scru128Generator *g, uint8_t *id_out,
  * generator, or resets the generator upon significant timestamp rollback.
  *
  * This function returns monotonically increasing IDs unless a `timestamp`
- * provided is significantly (by `rollback_allowance` milliseconds or more)
+ * provided is significantly (by more than `rollback_allowance` milliseconds)
  * smaller than the one embedded in the immediately preceding ID. If such a
  * significant clock rollback is detected, this function resets the generator
  * and returns a new ID based on the given `timestamp`.
