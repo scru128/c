@@ -210,7 +210,15 @@ void test_comparison_methods(void) {
   }
 }
 
-uint32_t arc4random_mock(void) { return 0x42; }
+static uint32_t arc4random_mock_state = 0x42;
+
+/** A naive xorshift random number generator */
+uint32_t arc4random_mock(void) {
+  arc4random_mock_state ^= arc4random_mock_state << 3;
+  arc4random_mock_state ^= arc4random_mock_state >> 13;
+  arc4random_mock_state ^= arc4random_mock_state << 7;
+  return arc4random_mock_state;
+}
 
 /** Generates increasing IDs even with decreasing or constant timestamp */
 void test_decreasing_or_constant_timestamp_reset(void) {
@@ -341,6 +349,9 @@ void test_timestamp_rollback_abort(void) {
   } while (0)
 
 int main(void) {
+  int addr_as_seed;
+  arc4random_mock_state = (uintptr_t)&addr_as_seed;
+
   printf("%s:\n", __FILE__);
   run_test(test_encode_decode);
   run_test(test_string_validation);
