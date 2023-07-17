@@ -47,7 +47,7 @@ $(function() {
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment"> *</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment"> * SCRU128: Sortable, Clock and Random number-based Unique identifier</span></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment"> *</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment"> * @version   v0.4.1</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment"> * @version   v0.4.2</span></div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment"> * @copyright Licensed under the Apache License, Version 2.0</span></div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment"> * @see       https://github.com/scru128/c</span></div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="comment"> */</span></div>
@@ -411,7 +411,7 @@ $(function() {
 <div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span><span class="comment"> * generator, or returns an error upon significant timestamp rollback.</span></div>
 <div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span><span class="comment"> *</span></div>
 <div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span><span class="comment"> * This function returns monotonically increasing IDs unless a `timestamp`</span></div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span><span class="comment"> * provided is significantly (by `rollback_allowance` milliseconds or more)</span></div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span><span class="comment"> * provided is significantly (by more than `rollback_allowance` milliseconds)</span></div>
 <div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span><span class="comment"> * smaller than the one embedded in the immediately preceding ID. If such a</span></div>
 <div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span><span class="comment"> * significant clock rollback is detected, this function aborts and returns</span></div>
 <div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span><span class="comment"> * `SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT`.</span></div>
@@ -446,7 +446,7 @@ $(function() {
 <div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>  <span class="keywordflow">if</span> (timestamp &gt; g-&gt;_timestamp) {</div>
 <div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>    g-&gt;_timestamp = timestamp;</div>
 <div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>    g-&gt;_counter_lo = (*arc4random)() &amp; SCRU128_MAX_COUNTER_LO;</div>
-<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (timestamp + rollback_allowance &gt; g-&gt;_timestamp) {</div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (timestamp + rollback_allowance &gt;= g-&gt;_timestamp) {</div>
 <div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>    <span class="comment">// go on with previous timestamp if new one is not much smaller</span></div>
 <div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>    g-&gt;_counter_lo++;</div>
 <div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>    status = <a class="code hl_define" href="scru128_8h.html#a5fe1743a1e07a52cc883e38b0abf5685">SCRU128_GENERATOR_STATUS_COUNTER_LO_INC</a>;</div>
@@ -485,7 +485,7 @@ $(function() {
 <div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span><span class="comment"> * generator, or resets the generator upon significant timestamp rollback.</span></div>
 <div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span><span class="comment"> *</span></div>
 <div class="line"><a id="l00443" name="l00443"></a><span class="lineno">  443</span><span class="comment"> * This function returns monotonically increasing IDs unless a `timestamp`</span></div>
-<div class="line"><a id="l00444" name="l00444"></a><span class="lineno">  444</span><span class="comment"> * provided is significantly (by `rollback_allowance` milliseconds or more)</span></div>
+<div class="line"><a id="l00444" name="l00444"></a><span class="lineno">  444</span><span class="comment"> * provided is significantly (by more than `rollback_allowance` milliseconds)</span></div>
 <div class="line"><a id="l00445" name="l00445"></a><span class="lineno">  445</span><span class="comment"> * smaller than the one embedded in the immediately preceding ID. If such a</span></div>
 <div class="line"><a id="l00446" name="l00446"></a><span class="lineno">  446</span><span class="comment"> * significant clock rollback is detected, this function resets the generator</span></div>
 <div class="line"><a id="l00447" name="l00447"></a><span class="lineno">  447</span><span class="comment"> * and returns a new ID based on the given `timestamp`.</span></div>
