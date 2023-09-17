@@ -3,7 +3,7 @@
  *
  * SCRU128: Sortable, Clock and Random number-based Unique identifier
  *
- * @version   v0.4.2
+ * @version   v0.4.3
  * @copyright Licensed under the Apache License, Version 2.0
  * @see       https://github.com/scru128/c
  */
@@ -366,11 +366,11 @@ static inline void scru128_generator_init(Scru128Generator *g) {
  * Generates a new SCRU128 ID with the given `timestamp` and random number
  * generator, or returns an error upon significant timestamp rollback.
  *
- * This function returns monotonically increasing IDs unless a `timestamp`
- * provided is significantly (by more than `rollback_allowance` milliseconds)
- * smaller than the one embedded in the immediately preceding ID. If such a
- * significant clock rollback is detected, this function aborts and returns
- * `SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT`.
+ * This function returns a monotonically increasing ID by reusing the previous
+ * `timestamp` even if the one provided is smaller than the immediately
+ * preceding ID's. However, when such a clock rollback is considered significant
+ * (by more than `rollback_allowance` milliseconds), this function aborts and
+ * returns `SCRU128_GENERATOR_STATUS_ROLLBACK_ABORT` immediately.
  *
  * See `scru128_generate_or_reset_core()` for the other mode of generation.
  *
@@ -440,11 +440,12 @@ scru128_generate_or_abort_core(Scru128Generator *g, uint8_t *id_out,
  * Generates a new SCRU128 ID with the given `timestamp` and random number
  * generator, or resets the generator upon significant timestamp rollback.
  *
- * This function returns monotonically increasing IDs unless a `timestamp`
- * provided is significantly (by more than `rollback_allowance` milliseconds)
- * smaller than the one embedded in the immediately preceding ID. If such a
- * significant clock rollback is detected, this function resets the generator
- * and returns a new ID based on the given `timestamp`.
+ * This function returns a monotonically increasing ID by reusing the previous
+ * `timestamp` even if the one provided is smaller than the immediately
+ * preceding ID's. However, when such a clock rollback is considered significant
+ * (by more than `rollback_allowance` milliseconds), this function resets the
+ * generator and returns a new ID based on the given `timestamp`, breaking the
+ * increasing order of IDs.
  *
  * See `scru128_generate_or_abort_core()` for the other mode of generation.
  *
